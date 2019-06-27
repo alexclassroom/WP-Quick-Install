@@ -4,7 +4,7 @@ Script Name: WP Quick Install
 Author: Jonathan Buttigieg
 Contributors: Julio Potier
 Script URI: http://wp-quick-install.com
-Version: 1.4.1
+Version: 1.4.2
 Licence: GPLv3
 Last Update: 08 jan 15
 */
