@@ -6,7 +6,7 @@ Contributors: Julio Potier
 Script URI: http://wp-quick-install.com
 Version: 1.4.2
 Licence: GPLv3
-Last Update: 08 jan 15
+Last Update: 28 Jun 19
 */
 
 @set_time_limit( 0 );
