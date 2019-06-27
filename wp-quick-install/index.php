@@ -11,20 +11,20 @@ Last Update: 08 jan 15
 
 @set_time_limit( 0 );
 
-define( 'WP_API_CORE'				, 'http://api.wordpress.org/core/version-check/1.7/?locale=' );
-define( 'WPQI_CACHE_PATH'			, 'cache/' );
-define( 'WPQI_CACHE_CORE_PATH'		, WPQI_CACHE_PATH . 'core/' );
-define( 'WPQI_CACHE_PLUGINS_PATH'	, WPQI_CACHE_PATH . 'plugins/' );
+define( 'WP_API_CORE'				, 'https://api.wordpress.org/core/version-check/1.7/?locale=');
+define( 'WPQI_CACHE_PATH'			, 'cache/');
+define( 'WPQI_CACHE_CORE_PATH'		, WPQI_CACHE_PATH . 'core/');
+define( 'WPQI_CACHE_PLUGINS_PATH'	, WPQI_CACHE_PATH . 'plugins/');
 
-require( 'inc/functions.php' );
+require( 'inc/functions.php');
 
-// Force URL with index.php
-if ( empty( $_GET ) && end( ( explode( '/' , trim($_SERVER['REQUEST_URI'], '/') ) ) ) == 'wp-quick-install' ) {
-	header( 'Location: index.php' );
+// 強制在網址尾端加上 index.php。
+if ( empty( $_GET ) && end( ( explode( '/' , trim($_SERVER['REQUEST_URI'], '/') ) ) ) == 'wp-quick-install') {
+	header( 'Location: index.php');
 	die();
 }
 
-// Create cache directories
+// 建立快取目錄。
 if ( ! is_dir( WPQI_CACHE_PATH ) ) {
 	mkdir( WPQI_CACHE_PATH );
 }
@@ -35,10 +35,10 @@ if ( ! is_dir( WPQI_CACHE_PLUGINS_PATH ) ) {
 	mkdir( WPQI_CACHE_PLUGINS_PATH );
 }
 
-// We verify if there is a preconfig file
+// 驗證是否有預先設定檔。
 $data = array();
-if ( file_exists( 'data.ini' ) ) {
-	$data = json_encode( parse_ini_file( 'data.ini' ) );
+if ( file_exists( 'data.ini') ) {
+	$data = json_encode( parse_ini_file( 'data.ini') );
 }
 
 // We add  ../ to directory
@@ -53,10 +53,10 @@ if ( isset( $_GET['action'] ) ) {
 			$data = array();
 
 			/*--------------------------*/
-			/*	We verify if we can connect to DB or WP is not installed yet
+			/*	驗證是否能順利與用於建置網站的資料庫進行連線，以及 WordPress 核心程式是否已安裝。
 			/*--------------------------*/
 
-			// DB Test
+			// 資料庫測試。
 			try {
 			   $db = new PDO('mysql:host='. $_POST['dbhost'] .';dbname=' . $_POST['dbname'] , $_POST['uname'], $_POST['pwd'] );
 			}
@@ -64,12 +64,12 @@ if ( isset( $_GET['action'] ) ) {
 				$data['db'] = "error etablishing connection";
 			}
 
-			// WordPress test
-			if ( file_exists( $directory . 'wp-config.php' ) ) {
+			// WordPress 測試。
+			if ( file_exists( $directory . 'wp-config.php') ) {
 				$data['wp'] = "error directory";
 			}
 
-			// We send the response
+			// 這個程式傳送回應。
 			echo json_encode( $data );
 
 			break;
@@ -83,10 +83,10 @@ if ( isset( $_GET['action'] ) ) {
 			$wp = json_decode( file_get_contents( WP_API_CORE . $language ) )->offers[0];
 
 			/*--------------------------*/
-			/*	We download the latest version of WordPress
+			/*	下載最新版本的 WordPress 核心程式安裝套件。
 			/*--------------------------*/
 
-			if ( ! file_exists( WPQI_CACHE_CORE_PATH . 'wordpress-' . $wp->version . '-' . $language  . '.zip' ) ) {
+			if ( ! file_exists( WPQI_CACHE_CORE_PATH . 'wordpress-' . $wp->version . '-' . $language  . '.zip') ) {
 				file_put_contents( WPQI_CACHE_CORE_PATH . 'wordpress-' . $wp->version . '-' . $language  . '.zip', file_get_contents( $wp->download ) );
 			}
 
@@ -116,27 +116,27 @@ if ( isset( $_GET['action'] ) ) {
 			$zip = new ZipArchive;
 
 			// We verify if we can use the archive
-			if ( $zip->open( WPQI_CACHE_CORE_PATH . 'wordpress-' . $wp->version . '-' . $language  . '.zip' ) === true ) {
+			if ( $zip->open( WPQI_CACHE_CORE_PATH . 'wordpress-' . $wp->version . '-' . $language  . '.zip') === true ) {
 
 				// Let's unzip
-				$zip->extractTo( '.' );
+				$zip->extractTo( '.');
 				$zip->close();
 
 				// We scan the folder
-				$files = scandir( 'wordpress' );
+				$files = scandir( 'wordpress');
 
 				// We remove the "." and ".." from the current folder and its parent
-				$files = array_diff( $files, array( '.', '..' ) );
+				$files = array_diff( $files, array( '.', '..') );
 
 				// We move the files and folders
 				foreach ( $files as $file ) {
 					rename(  'wordpress/' . $file, $directory . '/' . $file );
 				}
 
-				rmdir( 'wordpress' ); // We remove WordPress folder
-				unlink( $directory . '/license.txt' ); // We remove licence.txt
-				unlink( $directory . '/readme.html' ); // We remove readme.html
-				unlink( $directory . '/wp-content/plugins/hello.php' ); // We remove Hello Dolly plugin
+				rmdir( 'wordpress'); // We remove WordPress folder
+				unlink( $directory . '/license.txt'); // We remove licence.txt
+				unlink( $directory . '/readme.html'); // We remove readme.html
+				unlink( $directory . '/wp-content/plugins/hello.php'); // We remove Hello Dolly plugin
 			}
 
 			break;
@@ -148,10 +148,10 @@ if ( isset( $_GET['action'] ) ) {
 				/*--------------------------*/
 
 				// We retrieve each line as an array
-				$config_file = file( $directory . 'wp-config-sample.php' );
+				$config_file = file( $directory . 'wp-config-sample.php');
 
 				// Managing the security keys
-				$secret_keys = explode( "\n", file_get_contents( 'https://api.wordpress.org/secret-key/1.1/salt/' ) );
+				$secret_keys = explode( "\n", file_get_contents( 'https://api.wordpress.org/secret-key/1.1/salt/') );
 
 				foreach ( $secret_keys as $k => $v ) {
 					$secret_keys[$k] = substr( $v, 28, 64 );
@@ -252,7 +252,7 @@ if ( isset( $_GET['action'] ) ) {
 				}
 				unset( $line );
 
-				$handle = fopen( $directory . 'wp-config.php', 'w' );
+				$handle = fopen( $directory . 'wp-config.php', 'w');
 				foreach ( $config_file as $line ) {
 					fwrite( $handle, $line );
 				}
@@ -272,13 +272,13 @@ if ( isset( $_GET['action'] ) ) {
 				define( 'WP_INSTALLING', true );
 
 				/** Load WordPress Bootstrap */
-				require_once( $directory . 'wp-load.php' );
+				require_once( $directory . 'wp-load.php');
 
 				/** Load WordPress Administration Upgrade API */
-				require_once( $directory . 'wp-admin/includes/upgrade.php' );
+				require_once( $directory . 'wp-admin/includes/upgrade.php');
 
 				/** Load wpdb */
-				require_once( $directory . 'wp-includes/wp-db.php' );
+				require_once( $directory . 'wp-includes/wp-db.php');
 
 				// WordPress installation
 				wp_install( $_POST[ 'weblog_title' ], $_POST['user_login'], $_POST['admin_email'], (int) $_POST[ 'blog_public' ], '', $_POST['admin_password'] );
@@ -289,7 +289,7 @@ if ( isset( $_GET['action'] ) ) {
                 $dir = str_replace( '../', '', $directory );
                 $link = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
                 $url = str_replace( $get, $dir, $link );
-                $url = trim( $url, '/' );
+                $url = trim( $url, '/');
 
 				update_option( 'siteurl', $url );
 				update_option( 'home', $url );
@@ -298,7 +298,7 @@ if ( isset( $_GET['action'] ) ) {
 				/*	We remove the default content
 				/*--------------------------*/
 
-				if ( $_POST['default_content'] == '1' ) {
+				if ( $_POST['default_content'] == '1') {
 					wp_delete_post( 1, true ); // We remove the article "Hello World"
 					wp_delete_post( 2, true ); // We remove the "Exemple page"
 				}
@@ -337,10 +337,10 @@ if ( isset( $_GET['action'] ) ) {
 				/*--------------------------*/
 
 				// We check if data.ini exists
-				if ( file_exists( 'data.ini' ) ) {
+				if ( file_exists( 'data.ini') ) {
 
 					// We parse the file and get the array
-					$file = parse_ini_file( 'data.ini' );
+					$file = parse_ini_file( 'data.ini');
 
 					// We verify if we have at least one page
 					if ( count( $file['posts'] ) >= 1 ) {
@@ -417,29 +417,29 @@ if ( isset( $_GET['action'] ) ) {
 			case "install_theme" :
 
 				/** Load WordPress Bootstrap */
-				require_once( $directory . 'wp-load.php' );
+				require_once( $directory . 'wp-load.php');
 
 				/** Load WordPress Administration Upgrade API */
-				require_once( $directory . 'wp-admin/includes/upgrade.php' );
+				require_once( $directory . 'wp-admin/includes/upgrade.php');
 
 				/*--------------------------*/
 				/*	We install the new theme
 				/*--------------------------*/
 
 				// We verify if theme.zip exists
-				if ( file_exists( 'theme.zip' ) ) {
+				if ( file_exists( 'theme.zip') ) {
 
 					$zip = new ZipArchive;
 
 					// We verify we can use it
-					if ( $zip->open( 'theme.zip' ) === true ) {
+					if ( $zip->open( 'theme.zip') === true ) {
 
 						// We retrieve the name of the folder
 						$stat = $zip->statIndex( 0 );
 						$theme_name = str_replace('/', '' , $stat['name']);
 
 						// We unzip the archive in the themes folder
-						$zip->extractTo( $directory . 'wp-content/themes/' );
+						$zip->extractTo( $directory . 'wp-content/themes/');
 						$zip->close();
 
 						// Let's activate the theme
@@ -450,17 +450,17 @@ if ( isset( $_GET['action'] ) ) {
 
 						// Let's remove the Tweenty family
 						if ( $_POST['delete_default_themes'] == 1 ) {
-							delete_theme( 'twentysixteen' );
-							delete_theme( 'twentyfifteen' );
-							delete_theme( 'twentyfourteen' );
-							delete_theme( 'twentythirteen' );
-							delete_theme( 'twentytwelve' );
-							delete_theme( 'twentyeleven' );
-							delete_theme( 'twentyten' );
+							delete_theme( 'twentysixteen');
+							delete_theme( 'twentyfifteen');
+							delete_theme( 'twentyfourteen');
+							delete_theme( 'twentythirteen');
+							delete_theme( 'twentytwelve');
+							delete_theme( 'twentyeleven');
+							delete_theme( 'twentyten');
 						}
 
 						// We delete the _MACOSX folder (bug with a Mac)
-						delete_theme( '__MACOSX' );
+						delete_theme( '__MACOSX');
 
 					}
 				}
@@ -482,7 +482,7 @@ if ( isset( $_GET['action'] ) ) {
 					foreach ( $plugins as $plugin ) {
 
 						// We retrieve the plugin XML file to get the link to downlad it
-					    $plugin_repo = file_get_contents( "http://api.wordpress.org/plugins/info/1.0/$plugin.json" );
+					    $plugin_repo = file_get_contents( "https://api.wordpress.org/plugins/info/1.0/$plugin.json" );
 
 					    if ( $plugin_repo && $plugin = json_decode( $plugin_repo ) ) {
 
@@ -507,10 +507,10 @@ if ( isset( $_GET['action'] ) ) {
 				if ( $_POST['plugins_premium'] == 1 ) {
 
 					// We scan the folder
-					$plugins = scandir( 'plugins' );
+					$plugins = scandir( 'plugins');
 
 					// We remove the "." and ".." corresponding to the current and parent folder
-					$plugins = array_diff( $plugins, array( '.', '..' ) );
+					$plugins = array_diff( $plugins, array( '.', '..') );
 
 					// We move the archives and we unzip
 					foreach ( $plugins as $plugin ) {
@@ -538,13 +538,13 @@ if ( isset( $_GET['action'] ) ) {
 
 				if ( $_POST['activate_plugins'] == 1 ) {
 
-					/** Load WordPress Bootstrap */
-					require_once( $directory . 'wp-load.php' );
+					/** 載入 WordPress Bootstrap */
+					require_once( $directory . 'wp-load.php');
 
-					/** Load WordPress Plugin API */
+					/** 載入 WordPress 的 Plugin API */
 					require_once( $directory . 'wp-admin/includes/plugin.php');
 
-					// Activation
+					// 啟用外掛
 					activate_plugins( array_keys( get_plugins() ) );
 				}
 
@@ -556,38 +556,38 @@ if ( isset( $_GET['action'] ) ) {
 				/*	If we have a success we add the link to the admin and the website
 				/*--------------------------*/
 
-				/** Load WordPress Bootstrap */
-				require_once( $directory . 'wp-load.php' );
+				/** 載入 WordPress Bootstrap */
+				require_once( $directory . 'wp-load.php');
 
-				/** Load WordPress Administration Upgrade API */
-				require_once( $directory . 'wp-admin/includes/upgrade.php' );
+				/** 載入 WordPress 管理後台的 Upgrade API */
+				require_once( $directory . 'wp-admin/includes/upgrade.php');
 
 				/*--------------------------*/
-				/*	We update permalinks
+				/*	更新永久連結
 				/*--------------------------*/
 				if ( ! empty( $_POST['permalink_structure'] ) ) {
 					file_put_contents( $directory . '.htaccess' , null );
 					flush_rewrite_rules();
 				}
 
-				echo '<div id="errors" class="alert alert-danger"><p style="margin:0;"><strong>' . _('Warning') . '</strong>: Don\'t forget to delete WP Quick Install folder.</p></div>';
+				echo '<div id="errors" class="alert alert-danger"><p style="margin:0;"><strong>' . _('警告') . '</strong>: 請務必記得刪除 wp-quick-install 資料夾。</p></div>';
 
 				// Link to the admin
-				echo '<a href="' . admin_url() . '" class="button" style="margin-right:5px;" target="_blank">'. _('Log In') . '</a>';
-				echo '<a href="' . home_url() . '" class="button" target="_blank">' . _('Go to website') . '</a>';
+				echo '<a href="' . admin_url() . '" class="button" style="margin-right:5px;" target="_blank">'. _('登入') . '</a>';
+				echo '<a href="' . home_url() . '" class="button" target="_blank">' . _('前往網站') . '</a>';
 
 				break;
 	}
 }
 else { ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+<html xmlns="https://www.w3.org/1999/xhtml" lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<title>WP Quick Install</title>
-		<!-- Get out Google! -->
+		<!-- 要求 Google 不要檢索並索引這個頁面 -->
 		<meta name="robots" content="noindex, nofollow">
-		<!-- CSS files -->
+		<!-- CSS 檔案 -->
 		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&#038;subset=latin%2Clatin-ext&#038;ver=3.9.1" />
 		<link rel="stylesheet" href="assets/css/style.min.css" />
 		<link rel="stylesheet" href="assets/css/buttons.min.css" />
@@ -604,68 +604,68 @@ else { ?>
 				<div class="progress-bar progress-bar-striped active" style="width: 0%;"></div>
 			</div>
 			<div id="success" style="display:none; margin: 10px 0;">
-				<h1 style="margin: 0"><?php echo _('The world is yours') ;?></h1>
-				<p><?php echo _('WordPress has been installed.') ;?></p>
+				<h1 style="margin: 0"><?php echo _('大功告成') ;?></h1>
+				<p><?php echo _('WordPress 已完成安裝。') ;?></p>
 			</div>
 			<form method="post" action="">
 
 				<div id="errors" class="alert alert-danger" style="display:none;">
-					<strong><?php echo _('Warning');?></strong>
+					<strong><?php echo _('警告');?></strong>
 				</div>
 
-				<h1><?php echo _('Warning');?></h1>
-				<p><?php echo _('This file must be in the wp-quick-install folder and not be present in the root of your project.');?></p>
+				<h1><?php echo _('警告');?></h1>
+				<p><?php echo _('這個檔案必須位於 <code>wp-quick-install</code> 資料夾中，而不能儲存於網站根目錄。');?></p>
 
-				<h1><?php echo _('Database Informations');?></h1>
-				<p><?php echo _( "Below you should enter your database connection details. If you&#8217;re not sure about these, contact your host." ); ?></p>
+				<h1><?php echo _('資料庫資訊');?></h1>
+				<p><?php echo _('安裝人員應於下方輸入資料庫連線詳細資料。如果不清楚以下欄位代表的意義，請洽詢網站主機服務商。'); ?></p>
 
 				<table class="form-table">
 					<tr>
-						<th scope="row"><label for="dbname"><?php echo _('Database name');?></label></th>
+						<th scope="row"><label for="dbname"><?php echo _('資料庫名稱');?></label></th>
 						<td><input name="dbname" id="dbname" type="text" size="25" value="wordpress" class="required" /></td>
-						<td><?php echo _( 'The name of the database you want to run WP in.' ); ?></td>
+						<td><?php echo _('用於建置網站的資料庫名稱。'); ?></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="uname"><?php echo _( 'Database username' );?></label></th>
+						<th scope="row"><label for="uname"><?php echo _('資料庫使用者名稱');?></label></th>
 						<td><input name="uname" id="uname" type="text" size="25" value="username" class="required" /></td>
-						<td><?php echo _( 'Your MySQL username' ); ?></td>
+						<td><?php echo _('用於建置網站的 MySQL 資料庫使用者名稱'); ?></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="pwd"><?php echo _('Password');?></label></th>
+						<th scope="row"><label for="pwd"><?php echo _('資料庫密碼');?></label></th>
 						<td><input name="pwd" id="pwd" type="text" size="25" value="password" /></td>
-						<td><?php echo _('&hellip;and your MySQL password.');?></td>
+						<td><?php echo _('...以及 MySQL 資料庫密碼。');?></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="dbhost"><?php echo _( 'Database Host' ); ?></label></th>
+						<th scope="row"><label for="dbhost"><?php echo _('資料庫主機名稱'); ?></label></th>
 						<td><input name="dbhost" id="dbhost" type="text" size="25" value="localhost" class="required" /></td>
-						<td><?php echo _( 'You should be able to get this info from your web host, if <code>localhost</code> does not work.' ); ?></td>
+						<td><?php echo _('如果因故無法使用 <code>localhost</code> 進行連線，請要求網站主機服務商提供正確對應資訊。'); ?></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="prefix"><?php echo _( 'Table Prefix' ); ?></label></th>
+						<th scope="row"><label for="prefix"><?php echo _('資料表前置詞'); ?></label></th>
 						<td><input name="prefix" id="prefix" type="text" value="wp_" size="25" class="required" /></td>
-						<td><?php echo _( 'If you want to run multiple WordPress installations in a single database, change this.' ); ?></td>
+						<td><?php echo _('如需在同一個資料庫中安裝多個 WordPress，請修改這個欄位中的預設設定。'); ?></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="default_content"><?php echo _('Default content');?></label></th>
+						<th scope="row"><label for="default_content"><?php echo _('網站預設內容');?></label></th>
 						<td>
-							<label><input type="checkbox" name="default_content" id="default_content" value="1" checked="checked" /> <?php echo _('Delete the content')?></label>
+							<label><input type="checkbox" name="default_content" id="default_content" value="1" checked="checked" /> <?php echo _('刪除網站預設內容')?></label>
 						</td>
-						<td><?php echo _('If you want to delete the default content added par WordPress (post, page, comment and links).');?></td>
+						<td><?php echo _('啟用這項設定後，便會在 WordPress 網站建置完成後刪除如文章、頁面、留言及連結等預設內容。');?></td>
 					</tr>
 				</table>
 
-				<h1><?php echo _('Required Informations');?></h1>
-				<p><?php echo _('Thank you to provide the following information. Don\'t worry, you will be able to change it later.');?></p>
+				<h1><?php echo _('安裝必要資訊');?></h1>
+				<p><?php echo _('感謝提供以下安裝必要資訊，這些設定在安裝完畢後可以進入管理後台變更。');?></p>
 
 				<table class="form-table">
 					<tr>
-						<th scope="row"><label for="language"><?php echo _('Language');?></label></th>
+						<th scope="row"><label for="language"><?php echo _('網站介面語言');?></label></th>
 						<td>
 							<select id="language" name="language">
-								<option value="en_US">English (United States)</option>
+								<option value="en_US">英文 (美國)</option>
 								<?php
 								// Get all available languages
-								$languages = json_decode( file_get_contents( 'http://api.wordpress.org/translations/core/1.0/?version=4.0' ) )->translations;
+								$languages = json_decode( file_get_contents( 'https://api.wordpress.org/translations/core/1.0/?version=4.0') )->translations;
 
 								foreach ( $languages as $language ) {
 									echo '<option value="' . $language->language . '">' . $language->native_name . '</option>';
@@ -676,164 +676,164 @@ else { ?>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="directory"><?php echo _('Installation Folder');?></label>
-							<p><?php echo _('Leave blank to install on the root folder');?></p>
+							<label for="directory"><?php echo _('安裝資料夾');?></label>
+							<p><?php echo _('欄位留空便會安裝於網站根目錄');?></p>
 						</th>
 						<td>
 							<input name="directory" type="text" id="directory" size="25" value="" />
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="weblog_title"><?php echo _('Site Title');?></label></th>
+						<th scope="row"><label for="weblog_title"><?php echo _('網站標題');?></label></th>
 						<td><input name="weblog_title" type="text" id="weblog_title" size="25" value="" class="required" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="user_login"><?php echo _('Username');?></label></th>
+						<th scope="row"><label for="user_login"><?php echo _('使用者名稱');?></label></th>
 						<td>
 							<input name="user_login" type="text" id="user_login" size="25" value="" class="required" />
-							<p><?php echo _('Usernames can have only alphanumeric characters, spaces, underscores, hyphens, periods and the @ symbol.');?></p>
+							<p><?php echo _('使用者名稱只能使用數字、英文字母、空白、底線、連字號、句號及 @ 符號。');?></p>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="admin_password"><?php echo _('Password');?></label>
-							<p><?php echo _('A password will be automatically generated for you if you leave this blank.');?></p>
+							<label for="admin_password"><?php echo _('密碼');?></label>
+							<p><?php echo _('欄位留空則會自動產生密碼');?></p>
 						</th>
 						<td>
 							<input name="admin_password" type="password" id="admin_password" size="25" value="" />
-							<p><?php echo _('Hint: The password should be at least seven characters long. To make it stronger, use upper and lower case letters, numbers and symbols like ! " ? $ % ^ &amp; ).');?>.</p>
+							<p><?php echo _('提示: 建議密碼應該至少要有 12 個字元，並在密碼中同時使用大小寫字母、數字及 ! \" ? $ % ^ &amp; ) 等特殊符號，便能讓密碼更安全。');?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="admin_email"><?php echo _('Your E-mail');?></label></th>
+						<th scope="row"><label for="admin_email"><?php echo _('電子郵件地址');?></label></th>
 						<td><input name="admin_email" type="text" id="admin_email" size="25" value="" class="required" />
-						<p><?php echo _('Double-check your email address before continuing.');?></p></td>
+						<p><?php echo _('繼續操作前，請再次確認填寫的電子郵件地址。');?></p></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="blog_public"><?php echo _('Privacy');?></label></th>
-						<td colspan="2"><label><input type="checkbox" id="blog_public" name="blog_public" value="1" checked="checked" /> <?php echo _('Allow search engines to index this site.');?></label></td>
+						<th scope="row"><label for="blog_public"><?php echo _('搜尋引擎可見度');?></label></th>
+						<td colspan="2"><label><input type="checkbox" id="blog_public" name="blog_public" value="1" checked="checked" /> <?php echo _('開放搜尋引擎索引這個網站');?></label></td>
 					</tr>
 				</table>
 
-				<h1><?php echo _('Theme Informations');?></h1>
-				<p><?php echo _('Enter the information below for your personal theme.');?></p>
+				<h1><?php echo _('佈景主題設定');?></h1>
+				<p><?php echo _('請為網站專屬佈景主題進行預先設定。');?></p>
 				<div class="alert alert-info">
-					<p style="margin:0px; padding:0px;"><?php echo _('WP Quick Install will automatically install your theme if it\'s on wp-quick-install folder and named theme.zip');?></p>
+					<p style="margin:0px; padding:0px;"><?php echo _('WP Quick Install 會自動安裝儲存於 wp-quick-install 資料夾中命名為 theme.zip 的佈景主題檔案。');?></p>
 				</div>
 				<table class="form-table">
 					<tr>
 						<th scope="row">
-							<label for="activate_theme"><?php echo _('Automatic Activation');?></label>
+							<label for="activate_theme"><?php echo _('自動啟用');?></label>
 						</th>
 						<td colspan="2">
-							<label><input type="checkbox" id="activate_theme" name="activate_theme" value="1" /> <?php echo _('Activate the theme after installing WordPress.');?></label>
+							<label><input type="checkbox" id="activate_theme" name="activate_theme" value="1" /> <?php echo _('WordPress 安裝完畢後，啟用預先安裝的佈景主題 (theme.zip)');?></label>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="delete_default_themes"><?php echo _('Default Themes');?></label>
+							<label for="delete_default_themes"><?php echo _('預設佈景主題');?></label>
 						</th>
-						<td colspan="2"><label><input type="checkbox" id="delete_default_themes" name="delete_default_themes" value="1" /> <?php echo _('Delete the default themes (Twenty Family).');?></label></td>
+						<td colspan="2"><label><input type="checkbox" id="delete_default_themes" name="delete_default_themes" value="1" /> <?php echo _('刪除預設 Twenty 系列佈景主題');?></label></td>
 					</tr>
 				</table>
 
-				<h1><?php echo _('Extensions Informations');?></h1>
-				<p><?php echo _('Simply enter below the extensions that should be addend during the installation.');?></p>
+				<h1><?php echo _('外掛設定');?></h1>
+				<p><?php echo _('請在下方設定要在安裝 WordPress 過程中額外安裝的外掛。');?></p>
 				<table class="form-table">
 					<tr>
 						<th scope="row">
-							<label for="plugins"><?php echo _('Free Extensions');?></label>
-							<p><?php echo _('The extension slug is available in the url (Ex: http://wordpress.org/extend/plugins/<strong>wordpress-seo</strong>)');?></p>
+							<label for="plugins"><?php echo _('免費外掛');?></label>
+							<p><?php echo _('請輸入 WordPress.org 外掛目錄中正確的外掛代稱，例如  https://tw.wordpress.org/plugins/<strong>health-check</strong>');?></p>
 						</th>
 						<td>
 							<input name="plugins" type="text" id="plugins" size="50" value="wp-website-monitoring; rocket-lazy-load; imagify" />
-							<p><?php echo _('Make sure that the extensions slugs are separated by a semicolon (;).');?></p>
+							<p><?php echo _('如需安裝多個免費外掛，請使用分號 <strong>;</strong> 分隔多個外掛代稱。');?></p>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="plugins"><?php echo _('Premium Extensions');?></label>
-							<p><?php echo _('Zip Archives have to be in the <em>plugins</em> folder at the <em>wp-quick-install</em> root folder.');?></p>
+							<label for="plugins"><?php echo _('付費外掛');?></label>
+							<p><?php echo _('請將要安裝的付費外掛 ZIP 壓縮檔儲存於 <strong>wp-quick-install</strong> 資料夾中的 <strong>plugins</strong> 子資料夾');?></p>
 						</th>
-						<td><label><input type="checkbox" id="plugins_premium" name="plugins_premium" value="1" /> <?php echo _('Install the premium extensions after WordPress installation.');?></label></td>
+						<td><label><input type="checkbox" id="plugins_premium" name="plugins_premium" value="1" /> <?php echo _('WordPress 安裝完畢後自動安裝付費外掛');?></label></td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="plugins"><?php echo _('Automatic activation');?></label>
+							<label for="plugins"><?php echo _('自動啟用');?></label>
 						</th>
-						<td><label><input type="checkbox" name="activate_plugins" id="activate_plugins" value="1" /> <?php echo _('Activate the extensions after WordPress installation.');?></label></td>
+						<td><label><input type="checkbox" name="activate_plugins" id="activate_plugins" value="1" /> <?php echo _('WordPress 安裝完畢後自動啟用外掛');?></label></td>
 					</tr>
 				</table>
 
-				<h1><?php echo _('Permalinks Informations');?></h1>
+				<h1><?php echo _('永久連結設定');?></h1>
 
-				<p><?php echo sprintf( _('By default WordPress uses web URLs which have question marks and lots of numbers in them; however, WordPress offers you the ability to create a custom URL structure for your permalinks and archives. This can improve the aesthetics, usability, and forward-compatibility of your links. A <a href="%s">number of tags are available</a>.'), 'http://codex.wordpress.org/Using_Permalinks'); ?></p>
+				<p><?php echo sprintf( _('WordPress 預設使用問號連接著一串數字的網址 (例如 ?p=123)，但是 WordPress 提供網站管理員為永久連結及彙整建立自訂網址結構的設定。自訂網址結構能為網站連結增進可讀性、可用性及向前相容性 (與更新版本具備相容性)。〈<a href="%s" target=_blank>使用永久連結</a>〉線上說明中提供了可用於永久連結結構的標籤說明。'), 'https://wordpress.org/support/article/using-permalinks/'); ?></p>
 
 				<table class="form-table">
 					<tr>
 						<th scope="row">
-							<label for="permalink_structure"><?php echo _('Custom Structure');?></label>
+							<label for="permalink_structure"><?php echo _('自訂結構');?></label>
 						</th>
 						<td>
-							<code>http://<?php echo $_SERVER['SERVER_NAME']; ?></code>
+							<code>https://<?php echo $_SERVER['SERVER_NAME']; ?></code>
 							<input name="permalink_structure" type="text" id="permalink_structure" size="50" value="/%postname%/" />
 						</td>
 					</tr>
 				</table>
 
-				<h1><?php echo _('Media Informations');?></h1>
+				<h1><?php echo _('媒體設定');?></h1>
 
-				<p><?php echo _('Specified dimensions below determine the maximum dimensions (in pixels) to use when inserting an image into the body of an article.');?></p>
+				<p><?php echo _('下方所列出的尺寸，決定了將圖片新增至 [媒體庫] 後會產生的各式圖片最大尺寸 (單位為像素)。');?></p>
 
 				<table class="form-table">
 					<tr>
-						<th scope="row"><?php echo _('Thumbnail sizes');?></th>
+						<th scope="row"><?php echo _('縮圖尺寸');?></th>
 						<td>
-							<label for="thumbnail_size_w"><?php echo _('Width : ');?></label>
+							<label for="thumbnail_size_w"><?php echo _('寬度: ');?></label>
 							<input name="thumbnail_size_w" style="width:100px;" type="number" id="thumbnail_size_w" min="0" step="10" value="0" size="1" />
-							<label for="thumbnail_size_h"><?php echo _('Height : ');?></label>
+							<label for="thumbnail_size_h"><?php echo _('高度: ');?></label>
 							<input name="thumbnail_size_h" style="width:100px;" type="number" id="thumbnail_size_h" min="0" step="10" value="0" size="1" /><br>
-							<label for="thumbnail_crop" class="small-text"><input name="thumbnail_crop" type="checkbox" id="thumbnail_crop" value="1" checked="checked" /><?php echo _('Resize images to get the exact dimensions');?></label>
+							<label for="thumbnail_crop" class="small-text"><input name="thumbnail_crop" type="checkbox" id="thumbnail_crop" value="1" checked="checked" /><?php echo _('將縮圖縮放至與上方設定完全相符的尺寸');?></label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php echo _('Middle Size');?></th>
+						<th scope="row"><?php echo _('中型尺寸');?></th>
 						<td>
-							<label for="medium_size_w"><?php echo _('Width :');?></label>
+							<label for="medium_size_w"><?php echo _('寬度:');?></label>
 							<input name="medium_size_w" style="width:100px;" type="number" id="medium_size_w" min="0" step="10" value="0" size="5" />
-							<label for="medium_size_h"><?php echo _('Height : ');?></label>
+							<label for="medium_size_h"><?php echo _('高度: ');?></label>
 							<input name="medium_size_h" style="width:100px;" type="number" id="medium_size_h" min="0" step="10" value="0" size="5" /><br>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php echo _('Big Size');?></th>
+						<th scope="row"><?php echo _('大型尺寸');?></th>
 						<td>
-							<label for="large_size_w"><?php echo _('Width : ');?></label>
+							<label for="large_size_w"><?php echo _('寬度: ');?></label>
 							<input name="large_size_w" style="width:100px;" type="number" id="large_size_w" min="0" step="10" value="0" size="5" />
-							<label for="large_size_h"><?php echo _('Height : ');?></label>
+							<label for="large_size_h"><?php echo _('高度: ');?></label>
 							<input name="large_size_h" style="width:100px;" type="number" id="large_size_h" min="0" step="10" value="0" size="5" /><br>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="upload_dir"><?php echo _('Store uploaded files in this folder');?></label>
-							<p><?php echo _('By default, medias are stored in the <em> wp-content/uploads</em> folder');?></p>
+							<label for="upload_dir"><?php echo _('儲存上傳檔案的資料夾');?></label>
+							<p><?php echo _('媒體檔案預設會儲存於 <strong>wp-content/uploads</strong> 資料夾');?></p>
 						</th>
 						<td>
 							<input type="text" id="upload_dir" name="upload_dir" size="46" value="" /><br/>
-							<label for="uploads_use_yearmonth_folders" class="small-text"><input name="uploads_use_yearmonth_folders" type="checkbox" id="uploads_use_yearmonth_folders" value="1" checked="checked" /><?php echo _('Organize my files in monthly and annual folders')?></label>
+							<label for="uploads_use_yearmonth_folders" class="small-text"><input name="uploads_use_yearmonth_folders" type="checkbox" id="uploads_use_yearmonth_folders" value="1" checked="checked" /><?php echo _('為上傳的檔案建立以<strong>年份</strong>及<strong>月份</strong>命名的資料夾')?></label>
 						</td>
 					</tr>
 				</table>
 
-				<h1><?php echo _('wp-config.php Informations');?></h1>
-				<p><?php echo _('Choose below the additional constants you want to add in <strong>wp-config.php</strong>');?></p>
+				<h1><?php echo _('wp-config.php 設定');?></h1>
+				<p><?php echo _('請設定要加入 <strong>wp-config.php</strong> 的額外常數。');?></p>
 
 				<table class="form-table">
 					<tr>
 						<th scope="row">
-							<label for="post_revisions"><?php echo _('Revisions');?></label>
-							<p><?php echo _('By default, number of post revision is unlimited');?></p>
+							<label for="post_revisions"><?php echo _('內容修訂版本數量');?></label>
+							<p><?php echo _('依照預設，內容修訂版本數量沒有上限');?></p>
 						</th>
 						<td>
 							<input name="post_revisions" id="post_revisions" type="number" min="0" value="0" />
@@ -841,40 +841,40 @@ else { ?>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="plugins"><?php echo _('Editor');?></label>
+							<label for="plugins"><?php echo _('編輯器');?></label>
 						</th>
-						<td><label><input type="checkbox" id="disallow_file_edit" name="disallow_file_edit" value="1" checked='checked' /><?php echo _('Disable theme and extensions editor');?></label></td>
+						<td><label><input type="checkbox" id="disallow_file_edit" name="disallow_file_edit" value="1" checked='checked' /><?php echo _('停用佈景主題及外掛編輯器');?></label></td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="autosave_interval"><?php echo _('Autosave');?></label>
-							<p><?php echo _('By default, autosave interval is 60 seconds.');?></p>
+							<label for="autosave_interval"><?php echo _('自動儲存間隔時間');?></label>
+							<p><?php echo _('依照預設，自動儲存的間隔時間為 60 秒');?></p>
 						</th>
-						<td><input name="autosave_interval" id="autosave_interval" type="number" min="60" step="60" size="25" value="7200" /> <?php echo _('seconds');?></td>
+						<td><input name="autosave_interval" id="autosave_interval" type="number" min="60" step="60" size="25" value="7200" /> <?php echo _('秒');?></td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="debug"><?php echo _('Debug Mode');?></label>
+							<label for="debug"><?php echo _('偵錯模式');?></label>
 						</th>
 						<td>
-							<label><input type="checkbox" name="debug" id="debug" value="1" /> <?php echo _('Enable WordPress debug mode</label><p>By checking this box, WordPress will displaying errors</p>');?>
+							<label><input type="checkbox" name="debug" id="debug" value="1" /> <?php echo _('啟用 WordPress 偵錯模式</label><p>啟用這項設定後，WordPress 便會顯示執行錯誤訊息。</p>');?>
 
 
 							<div id="debug_options" style="display:none;">
-								<label><input type="checkbox" name="debug_display" id="debug_display" value="1" /> <?php echo _('Enable WP Debug');?></label>
+								<label><input type="checkbox" name="debug_display" id="debug_display" value="1" /> <?php echo _('啟用 WP Debug');?></label>
 								<br/>
-								<label><input type="checkbox" name="debug_log" id="debug_log" value="1" /> <?php echo _('Write errors in a log file <em>(wp-content/debug.log)</em>. ');?></label>
+								<label><input type="checkbox" name="debug_log" id="debug_log" value="1" /> <?php echo _('將錯誤訊息寫入記錄檔案 <strong>(wp-content/debug.log)</strong> 中');?></label>
 							</div>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="wpcom_api_key"><?php echo _('WP.com API Key');?></label>
+							<label for="wpcom_api_key"><?php echo _('WP.com API 金鑰');?></label>
 						</th>
 						<td><input name="wpcom_api_key" id="wpcom_api_key" type="text" size="25" value="" /></td>
 					</tr>
 				</table>
-				<p class="step"><span id="submit" class="button button-large"><?php echo _('Install WordPress');?></span></p>
+				<p class="step"><span id="submit" class="button button-large"><?php echo _('安裝 WordPress');?></span></p>
 
 			</form>
 
@@ -885,8 +885,8 @@ else { ?>
 		} else { ?>
 
 			<div class="alert alert-error" style="margin-bottom: 0px;">
-				<strong><?php echo _('Warning !');?></strong>
-				<p style="margin-bottom:0px;"><?php echo _('You don\'t have the good permissions rights on ') . basename( $parent_dir ) . _('. Thank you to set the good files permissions.') ;?></p>
+				<strong><?php echo _('警告！');?></strong>
+				<p style="margin-bottom:0px;"><?php echo _('指定位置的檔案權限並未正確設定，該位置為 ') . basename( $parent_dir ) . _('。感謝設定正確的檔案權限。') ;?></p>
 			</div>
 
 		<?php
