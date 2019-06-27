@@ -793,7 +793,7 @@ else { ?>
 							<input name="thumbnail_size_w" style="width:100px;" type="number" id="thumbnail_size_w" min="0" step="10" value="0" size="1" />
 							<label for="thumbnail_size_h"><?php echo _('高度: ');?></label>
 							<input name="thumbnail_size_h" style="width:100px;" type="number" id="thumbnail_size_h" min="0" step="10" value="0" size="1" /><br>
-							<label for="thumbnail_crop" class="small-text"><input name="thumbnail_crop" type="checkbox" id="thumbnail_crop" value="1" checked="checked" /><?php echo _('將縮圖縮放至與上方設定完全相符的尺寸');?></label>
+							<label for="thumbnail_crop" class="small-text"><input name="thumbnail_crop" type="checkbox" id="thumbnail_crop" value="1" checked="checked" /><?php echo _('將縮圖裁剪至與上方設定完全相符的尺寸');?></label>
 						</td>
 					</tr>
 					<tr>
