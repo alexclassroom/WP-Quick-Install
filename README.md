@@ -1,11 +1,11 @@
-WP Quick Install 1.4.2
+WP Quick Install 1.4.2 台灣繁體中文版
 ================
 
-WP Quick Install is the easiest way to install WordPress.
+WP Quick Install 提供了安裝 WordPress 網站最簡單的方式。
 
-A lightweight script which automatically downloads and install WordPress, plugins and themes you want.
+它所提供的輕量指令碼能夠自動下載並安裝 WordPress 核心程式、外掛及佈景主題。
 
-Simply download the .zip archive et go to *wp-quick-install/index.php*
+僅需下載 ZIP 壓縮檔並上解壓縮所得的資料夾及全部檔案上傳至網站根目錄，並在網址列輸入 siteurl/wp-quick-install/index.php 即可開始安裝。
 
 Changelog
 ================
