@@ -746,7 +746,7 @@ else { ?>
 							<p><?php echo _('請輸入 WordPress.org 外掛目錄中正確的外掛代稱，例如  https://tw.wordpress.org/plugins/<strong>health-check</strong>');?></p>
 						</th>
 						<td>
-							<input name="plugins" type="text" id="plugins" size="50" value="wp-website-monitoring; rocket-lazy-load; imagify" />
+							<input name="plugins" type="text" id="plugins" size="50" value="health-check; rocket-lazy-load; imagify" />
 							<p><?php echo _('如需安裝多個免費外掛，請使用分號 <strong>;</strong> 分隔多個外掛代稱。');?></p>
 						</td>
 					</tr>
