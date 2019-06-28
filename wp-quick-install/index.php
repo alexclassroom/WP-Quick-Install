@@ -4,8 +4,9 @@ Script Name: WP Quick Install
 Author: Jonathan Buttigieg
 Contributors: Julio Potier
 Script URI: http://wp-quick-install.com
-Version: 1.4.2
+Version: 1.4.2-zh_TW
 Licence: GPLv3
+Translator: Alex Lion
 Last Update: 28 Jun 19
 */
 
@@ -18,13 +19,13 @@ define( 'WPQI_CACHE_PLUGINS_PATH'	, WPQI_CACHE_PATH . 'plugins/');
 
 require( 'inc/functions.php');
 
-// 強制在網址尾端加上 index.php。
+// 強制在網址尾端加上 index.php
 if ( empty( $_GET ) && end( ( explode( '/' , trim($_SERVER['REQUEST_URI'], '/') ) ) ) == 'wp-quick-install') {
 	header( 'Location: index.php');
 	die();
 }
 
-// 建立快取目錄。
+// 建立快取目錄
 if ( ! is_dir( WPQI_CACHE_PATH ) ) {
 	mkdir( WPQI_CACHE_PATH );
 }
@@ -35,13 +36,13 @@ if ( ! is_dir( WPQI_CACHE_PLUGINS_PATH ) ) {
 	mkdir( WPQI_CACHE_PLUGINS_PATH );
 }
 
-// 驗證是否有預先設定檔。
+// 驗證是否有預設配置檔
 $data = array();
 if ( file_exists( 'data.ini') ) {
 	$data = json_encode( parse_ini_file( 'data.ini') );
 }
 
-// We add  ../ to directory
+// 將 ../ 語法加入目錄
 $directory = ! empty( $_POST['directory'] ) ? '../' . $_POST['directory'] . '/' : '../';
 
 if ( isset( $_GET['action'] ) ) {
@@ -53,10 +54,10 @@ if ( isset( $_GET['action'] ) ) {
 			$data = array();
 
 			/*--------------------------*/
-			/*	驗證是否能順利與用於建置網站的資料庫進行連線，以及 WordPress 核心程式是否已安裝。
+			/*	驗證是否能順利與用於建置網站的資料庫進行連線，以及 WordPress 核心程式是否已安裝
 			/*--------------------------*/
 
-			// 資料庫測試。
+			// 資料庫測試
 			try {
 			   $db = new PDO('mysql:host='. $_POST['dbhost'] .';dbname=' . $_POST['dbname'] , $_POST['uname'], $_POST['pwd'] );
 			}
@@ -64,26 +65,26 @@ if ( isset( $_GET['action'] ) ) {
 				$data['db'] = "error etablishing connection";
 			}
 
-			// WordPress 測試。
+			// WordPress 測試
 			if ( file_exists( $directory . 'wp-config.php') ) {
 				$data['wp'] = "error directory";
 			}
 
-			// 這個程式傳送回應。
+			// 這個程式傳送回應
 			echo json_encode( $data );
 
 			break;
 
 		case "download_wp" :
 
-			// Get WordPress language
+			// 取得 WordPress 網站介面語言資料
 			$language = substr( $_POST['language'], 0, 6 );
 
-			// Get WordPress data
+			// 取得 WordPress 核心程式資料
 			$wp = json_decode( file_get_contents( WP_API_CORE . $language ) )->offers[0];
 
 			/*--------------------------*/
-			/*	下載最新版本的 WordPress 核心程式安裝套件。
+			/*	下載最新版本的 WordPress 核心程式安裝套件
 			/*--------------------------*/
 
 			if ( ! file_exists( WPQI_CACHE_CORE_PATH . 'wordpress-' . $wp->version . '-' . $language  . '.zip') ) {
@@ -94,49 +95,49 @@ if ( isset( $_GET['action'] ) ) {
 
 		case "unzip_wp" :
 
-			// Get WordPress language
+			// 取得 WordPress 網站介面語言資料
 			$language = substr( $_POST['language'], 0, 6 );
 
-			// Get WordPress data
+			// 取得 WordPress 核心程式資料
 			$wp = json_decode( file_get_contents( WP_API_CORE . $language ) )->offers[0];
 
 			/*--------------------------*/
-			/*	We create the website folder with the files and the WordPress folder
+			/*	建立含有檔案的網站資料夾以及 WordPress 資料夾
 			/*--------------------------*/
 
-			// If we want to put WordPress in a subfolder we create it
+			// 如果有需要，變將 WordPress 資料夾儲存至這個程式建立的子資料夾
 			if ( ! empty( $directory ) ) {
 				// Let's create the folder
 				mkdir( $directory );
 
-				// We set the good writing rights
+				// 為目錄設定正確存取權限
 				chmod( $directory , 0755 );
 			}
 
 			$zip = new ZipArchive;
 
-			// We verify if we can use the archive
+			// 驗證安裝套件是否可用
 			if ( $zip->open( WPQI_CACHE_CORE_PATH . 'wordpress-' . $wp->version . '-' . $language  . '.zip') === true ) {
 
-				// Let's unzip
+				// 進行解壓縮
 				$zip->extractTo( '.');
 				$zip->close();
 
-				// We scan the folder
+				// 掃描資料夾
 				$files = scandir( 'wordpress');
 
-				// We remove the "." and ".." from the current folder and its parent
+				// 從目前資料夾其其上層資料夾中移除 "." 及 ".."
 				$files = array_diff( $files, array( '.', '..') );
 
-				// We move the files and folders
+				// 移動檔案及資料夾
 				foreach ( $files as $file ) {
 					rename(  'wordpress/' . $file, $directory . '/' . $file );
 				}
 
-				rmdir( 'wordpress'); // We remove WordPress folder
-				unlink( $directory . '/license.txt'); // We remove licence.txt
-				unlink( $directory . '/readme.html'); // We remove readme.html
-				unlink( $directory . '/wp-content/plugins/hello.php'); // We remove Hello Dolly plugin
+				rmdir( 'wordpress'); // 移除 WordPress 資料夾
+				unlink( $directory . '/license.txt'); // 移除 licence.txt 檔案
+				unlink( $directory . '/readme.html'); // 移除 readme.html 檔案
+				unlink( $directory . '/wp-content/plugins/hello.php'); // 移除 Hello Dolly 外掛
 			}
 
 			break;
@@ -144,20 +145,20 @@ if ( isset( $_GET['action'] ) ) {
 			case "wp_config" :
 
 				/*--------------------------*/
-				/*	Let's create the wp-config file
+				/*	開始建立 wp-config 檔案
 				/*--------------------------*/
 
-				// We retrieve each line as an array
+				// 將每一行內容擷取為陣列
 				$config_file = file( $directory . 'wp-config-sample.php');
 
-				// Managing the security keys
+				// 管理安全金鑰
 				$secret_keys = explode( "\n", file_get_contents( 'https://api.wordpress.org/secret-key/1.1/salt/') );
 
 				foreach ( $secret_keys as $k => $v ) {
 					$secret_keys[$k] = substr( $v, 28, 64 );
 				}
 
-				// We change the data
+				// 寫入變更資料
 				$key = 0;
 				foreach ( $config_file as &$line ) {
 
@@ -175,24 +176,24 @@ if ( isset( $_GET['action'] ) ) {
 					switch ( $constant ) {
 						case 'WP_DEBUG'	   :
 
-							// Debug mod
+							// 偵錯模式
 							if ( (int) $_POST['debug'] == 1 ) {
 								$line = "define('WP_DEBUG', 'true');\r\n";
 
-								// Display error
+								// 顯示錯誤
 								if ( (int) $_POST['debug_display'] == 1 ) {
 									$line .= "\r\n\n " . "/** Affichage des erreurs à l'écran */" . "\r\n";
 									$line .= "define('WP_DEBUG_DISPLAY', 'true');\r\n";
 								}
 
-								// To write error in a log files
+								// 將錯誤訊息寫入記錄檔
 								if ( (int) $_POST['debug_log'] == 1 ) {
 									$line .= "\r\n\n " . "/** Ecriture des erreurs dans un fichier log */" . "\r\n";
 									$line .= "define('WP_DEBUG_LOG', 'true');\r\n";
 								}
 							}
 
-							// We add the extras constant
+							// 新增額外常數
 							if ( ! empty( $_POST['uploads'] ) ) {
 								$line .= "\r\n\n " . "/** Dossier de destination des fichiers uploadés */" . "\r\n";
 								$line .= "define('UPLOADS', '" . sanit( $_POST['uploads'] ) . "');";
@@ -258,7 +259,7 @@ if ( isset( $_GET['action'] ) ) {
 				}
 				fclose( $handle );
 
-				// We set the good rights to the wp-config file
+				// 為 wp-config 檔案設定正確存取權限
 				chmod( $directory . 'wp-config.php', 0666 );
 
 				break;
@@ -266,24 +267,24 @@ if ( isset( $_GET['action'] ) ) {
 			case "install_wp" :
 
 				/*--------------------------*/
-				/*	Let's install WordPress database
+				/*	開始寫入 WordPress 資料庫
 				/*--------------------------*/
 
 				define( 'WP_INSTALLING', true );
 
-				/** Load WordPress Bootstrap */
+				/** 載入 WordPress Bootstrap */
 				require_once( $directory . 'wp-load.php');
 
-				/** Load WordPress Administration Upgrade API */
+				/** 載入 WordPress 管理後台的 Update API */
 				require_once( $directory . 'wp-admin/includes/upgrade.php');
 
-				/** Load wpdb */
+				/** 載入 wpdb */
 				require_once( $directory . 'wp-includes/wp-db.php');
 
-				// WordPress installation
+				// 安裝 WordPress
 				wp_install( $_POST[ 'weblog_title' ], $_POST['user_login'], $_POST['admin_email'], (int) $_POST[ 'blog_public' ], '', $_POST['admin_password'] );
 
-				// We update the options with the right siteurl et homeurl value
+				// 更新 [網站網址] 及 [WordPress 網址] 的設定值
 				$protocol = ! is_ssl() ? 'http' : 'https';
                 $get = basename( dirname( __FILE__ ) ) . '/index.php/wp-admin/install.php?action=install_wp';
                 $dir = str_replace( '../', '', $directory );
@@ -295,7 +296,7 @@ if ( isset( $_GET['action'] ) ) {
 				update_option( 'home', $url );
 
 				/*--------------------------*/
-				/*	We remove the default content
+				/*	移除預設內容
 				/*--------------------------*/
 
 				if ( $_POST['default_content'] == '1') {
@@ -304,14 +305,14 @@ if ( isset( $_GET['action'] ) ) {
 				}
 
 				/*--------------------------*/
-				/*	We update permalinks
+				/*	更新 [永久連結] 設定
 				/*--------------------------*/
 				if ( ! empty( $_POST['permalink_structure'] ) ) {
 					update_option( 'permalink_structure', $_POST['permalink_structure'] );
 				}
 
 				/*--------------------------*/
-				/*	We update the media settings
+				/*	更新 [媒體] 設定
 				/*--------------------------*/
 
 				if ( ! empty( $_POST['thumbnail_size_w'] ) || !empty($_POST['thumbnail_size_h'] ) ) {
@@ -333,64 +334,64 @@ if ( isset( $_GET['action'] ) ) {
 				 update_option( 'uploads_use_yearmonth_folders', (int) $_POST['uploads_use_yearmonth_folders'] );
 
 				/*--------------------------*/
-				/*	We add the pages we found in the data.ini file
+				/*	新增在 data.ini 檔案中找到的頁面
 				/*--------------------------*/
 
-				// We check if data.ini exists
+				// 檢查 data.ini 是否存在
 				if ( file_exists( 'data.ini') ) {
 
-					// We parse the file and get the array
+					// 剖析檔案內容及取得陣列
 					$file = parse_ini_file( 'data.ini');
 
-					// We verify if we have at least one page
+					// 驗證是否至少有一個頁面
 					if ( count( $file['posts'] ) >= 1 ) {
 
 						foreach ( $file['posts'] as $post ) {
 
-							// We get the line of the page configuration
+							// 取得頁面組態內容
 							$pre_config_post = explode( "-", $post );
 							$post = array();
 
 							foreach ( $pre_config_post as $config_post ) {
 
-								// We retrieve the page title
+								// 擷取頁面標題
 								if ( preg_match( '#title::#', $config_post ) == 1 ) {
 									$post['title'] = str_replace( 'title::', '', $config_post );
 								}
 
-								// We retrieve the status (publish, draft, etc...)
+								// 擷取發佈狀態 (已發佈、草稿等...)
 								if ( preg_match( '#status::#', $config_post ) == 1 ) {
 									$post['status'] = str_replace( 'status::', '', $config_post );
 								}
 
-								// On retrieve the post type (post, page or custom post types ...)
+								// 擷取內容類型 (文章、頁面或自訂內容類型...)
 								if ( preg_match( '#type::#', $config_post ) == 1 ) {
 									$post['type'] = str_replace( 'type::', '', $config_post );
 								}
 
-								// We retrieve the content
+								// 擷取內容
 								if ( preg_match( '#content::#', $config_post ) == 1 ) {
 									$post['content'] = str_replace( 'content::', '', $config_post );
 								}
 
-								// We retrieve the slug
+								// 擷取代稱
 								if ( preg_match( '#slug::#', $config_post ) == 1 ) {
 									$post['slug'] = str_replace( 'slug::', '', $config_post );
 								}
 
-								// We retrieve the title of the parent
+								// 擷取上層項目標題
 								if ( preg_match( '#parent::#', $config_post ) == 1 ) {
 									$post['parent'] = str_replace( 'parent::', '', $config_post );
 								}
 
-							} // foreach
+							} // foreach 迴圈
 
 							if ( isset( $post['title'] ) && !empty( $post['title'] ) ) {
 
 								$parent = get_page_by_title( trim( $post['parent'] ) );
  								$parent = $parent ? $parent->ID : 0;
 
-								// Let's create the page
+								// 開始建立頁面
 								$args = array(
 									'post_title' 		=> trim( $post['title'] ),
 									'post_name'			=> $post['slug'],
@@ -416,40 +417,42 @@ if ( isset( $_GET['action'] ) ) {
 
 			case "install_theme" :
 
-				/** Load WordPress Bootstrap */
+				/** 載入 WordPress Bootstrap */
 				require_once( $directory . 'wp-load.php');
 
-				/** Load WordPress Administration Upgrade API */
+				/** 載入 WordPress 管理後台的 Update API */
 				require_once( $directory . 'wp-admin/includes/upgrade.php');
 
 				/*--------------------------*/
-				/*	We install the new theme
+				/*	安裝佈景主題
 				/*--------------------------*/
 
-				// We verify if theme.zip exists
+				// 驗證 theme.zip 是否存在
 				if ( file_exists( 'theme.zip') ) {
 
 					$zip = new ZipArchive;
 
-					// We verify we can use it
+					// 驗證 theme.zip 檔案是否可用
 					if ( $zip->open( 'theme.zip') === true ) {
 
-						// We retrieve the name of the folder
+						// 擷取資料夾名稱
 						$stat = $zip->statIndex( 0 );
 						$theme_name = str_replace('/', '' , $stat['name']);
 
-						// We unzip the archive in the themes folder
+						// 將 theme.zip 解壓縮至 themes 資料夾
 						$zip->extractTo( $directory . 'wp-content/themes/');
 						$zip->close();
 
-						// Let's activate the theme
-						// Note : The theme is automatically activated if the user asked to remove the default theme
+						// 啟用佈景主題
+						// 注意：如果已設定在安裝時移除預設佈景主題，則額外安裝的佈景主題會自動啟用
 						if ( $_POST['activate_theme'] == 1 || $_POST['delete_default_themes'] == 1 ) {
 							switch_theme( $theme_name, $theme_name );
 						}
 
-						// Let's remove the Tweenty family
+						// 移除 Tweenty 系列佈景主題
 						if ( $_POST['delete_default_themes'] == 1 ) {
+							delete_theme( 'twentynineteen');
+							delete_theme( 'twentyseventeen');
 							delete_theme( 'twentysixteen');
 							delete_theme( 'twentyfifteen');
 							delete_theme( 'twentyfourteen');
@@ -459,7 +462,7 @@ if ( isset( $_GET['action'] ) ) {
 							delete_theme( 'twentyten');
 						}
 
-						// We delete the _MACOSX folder (bug with a Mac)
+						// 刪除 _MACOSX 資料夾 (macOS 特有的程式碼錯誤)
 						delete_theme( '__MACOSX');
 
 					}
@@ -470,7 +473,7 @@ if ( isset( $_GET['action'] ) ) {
 			case "install_plugins" :
 
 				/*--------------------------*/
-				/*	Let's retrieve the plugin folder
+				/*	擷取外掛資料夾
 				/*--------------------------*/
 
 				if ( ! empty( $_POST['plugins'] ) ) {
@@ -481,7 +484,7 @@ if ( isset( $_GET['action'] ) ) {
 
 					foreach ( $plugins as $plugin ) {
 
-						// We retrieve the plugin XML file to get the link to downlad it
+						// 擷取外掛 XML 檔案，便能取得清單以便下載
 					    $plugin_repo = file_get_contents( "https://api.wordpress.org/plugins/info/1.0/$plugin.json" );
 
 					    if ( $plugin_repo && $plugin = json_decode( $plugin_repo ) ) {
@@ -489,12 +492,12 @@ if ( isset( $_GET['action'] ) ) {
 							$plugin_path = WPQI_CACHE_PLUGINS_PATH . $plugin->slug . '-' . $plugin->version . '.zip';
 
 							if ( ! file_exists( $plugin_path ) ) {
-								// We download the lastest version
+								// 下載最新版本外掛
 								if ( $download_link = file_get_contents( $plugin->download_link ) ) {
  									file_put_contents( $plugin_path, $download_link );
  								}							}
 
-					    	// We unzip it
+					    	// 解壓縮外掛安裝套件
 					    	$zip = new ZipArchive;
 							if ( $zip->open( $plugin_path ) === true ) {
 								$zip->extractTo( $plugins_dir );
@@ -506,24 +509,24 @@ if ( isset( $_GET['action'] ) ) {
 
 				if ( $_POST['plugins_premium'] == 1 ) {
 
-					// We scan the folder
+					// 掃描資料夾
 					$plugins = scandir( 'plugins');
 
-					// We remove the "." and ".." corresponding to the current and parent folder
+					// 移除目前資料夾及其上層資料夾對應的 "." 及 ".."
 					$plugins = array_diff( $plugins, array( '.', '..') );
 
-					// We move the archives and we unzip
+					// 移動壓縮檔並解壓縮
 					foreach ( $plugins as $plugin ) {
 
-						// We verify if we have to retrive somes plugins via the WP Quick Install "plugins" folder
+						// 驗證是否擷取到 WP Quick Install 中的 plugins 資料夾有儲存外掛安裝套件
 						if ( preg_match( '#(.*).zip$#', $plugin ) == 1 ) {
 
 							$zip = new ZipArchive;
 
-							// We verify we can use the archive
+							// 驗證安裝套件是否可用
 							if ( $zip->open( 'plugins/' . $plugin ) === true ) {
 
-								// We unzip the archive in the plugin folder
+								// 將 plugins 資料夾中的壓縮檔解壓縮
 								$zip->extractTo( $plugins_dir );
 								$zip->close();
 
@@ -533,7 +536,7 @@ if ( isset( $_GET['action'] ) ) {
 				}
 
 				/*--------------------------*/
-				/*	We activate extensions
+				/*	啟用外掛
 				/*--------------------------*/
 
 				if ( $_POST['activate_plugins'] == 1 ) {
@@ -553,13 +556,13 @@ if ( isset( $_GET['action'] ) ) {
 			case "success" :
 
 				/*--------------------------*/
-				/*	If we have a success we add the link to the admin and the website
+				/*	如果成功完成，便將連結新增至管理後台及網站
 				/*--------------------------*/
 
 				/** 載入 WordPress Bootstrap */
 				require_once( $directory . 'wp-load.php');
 
-				/** 載入 WordPress 管理後台的 Upgrade API */
+				/** 載入 WordPress 管理後台的 Update API */
 				require_once( $directory . 'wp-admin/includes/upgrade.php');
 
 				/*--------------------------*/
@@ -585,7 +588,7 @@ else { ?>
 	<head>
 		<meta charset="utf-8" />
 		<title>WP Quick Install</title>
-		<!-- 要求 Google 不要檢索並索引這個頁面 -->
+		<!-- 要求 Google 不要檢索及索引這個頁面 -->
 		<meta name="robots" content="noindex, nofollow">
 		<!-- CSS 檔案 -->
 		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&#038;subset=latin%2Clatin-ext&#038;ver=3.9.1" />
@@ -664,7 +667,7 @@ else { ?>
 							<select id="language" name="language">
 								<option value="en_US">英文 (美國)</option>
 								<?php
-								// Get all available languages
+								// 取得網站介面可用語言完整清單
 								$languages = json_decode( file_get_contents( 'https://api.wordpress.org/translations/core/1.0/?version=4.0') )->translations;
 
 								foreach ( $languages as $language ) {
@@ -869,7 +872,7 @@ else { ?>
 					</tr>
 					<tr>
 						<th scope="row">
-							<label for="wpcom_api_key"><?php echo _('WP.com API 金鑰');?></label>
+							<label for="wpcom_api_key"><?php echo _('WordPress.com API 金鑰');?></label>
 						</th>
 						<td><input name="wpcom_api_key" id="wpcom_api_key" type="text" size="25" value="" /></td>
 					</tr>
