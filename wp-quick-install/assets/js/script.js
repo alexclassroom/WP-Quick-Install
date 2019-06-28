@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-	// Debug mode
+	// 偵錯模式
 	var $debug		   = $('#debug'),
 		$debug_options = $('#debug_options'),
 		$debug_display = $debug_options.find('#debug_display');
@@ -23,7 +23,7 @@ $(document).ready(function() {
 	});
 
 	/*--------------------------*/
-	/*	Install folder
+	/*	安裝資料夾
 	/*--------------------------*/
 
 	if ( typeof data.directory !='undefined' ) {
@@ -31,7 +31,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	Blog Title
+	/*	網站標題
 	/*--------------------------*/
 
 	if ( typeof data.title !='undefined' ) {
@@ -39,7 +39,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	Language
+	/*	網站介面語言
 	/*--------------------------*/
 
 	if ( typeof data.language !='undefined' ) {
@@ -47,7 +47,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	Database
+	/*	資料庫
 	/*--------------------------*/
 
 	if ( typeof data.db !='undefined' ) {
@@ -78,7 +78,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	Admin user
+	/*	網站管理員使用者
 	/*--------------------------*/
 
 	if ( typeof data.admin !='undefined' ) {
@@ -98,7 +98,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	Enable SEO
+	/*	開放搜尋引擎檢索及索引網站
 	/*--------------------------*/
 
 	if ( typeof data.seo !='undefined' ) {
@@ -106,7 +106,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	Themes
+	/*	佈景主題
 	/*--------------------------*/
 
 	if ( typeof data.activate_theme !='undefined' ) {
@@ -118,7 +118,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	Plugins
+	/*	外掛
 	/*--------------------------*/
 
 	if ( typeof data.plugins !='undefined' ) {
@@ -134,7 +134,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	Permalinks
+	/*	永久連結
 	/*--------------------------*/
 
 	if ( typeof data.permalink_structure !='undefined' ) {
@@ -142,7 +142,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	Medias
+	/*	媒體
 	/*--------------------------*/
 
 	if ( typeof data.uploads !='undefined' ) {
@@ -186,7 +186,7 @@ $(document).ready(function() {
 	}
 
 	/*--------------------------*/
-	/*	wp-config.php constants
+	/*	wp-config.php 常數
 	/*--------------------------*/
 
 	if ( typeof data.wp_config !='undefined' ) {
@@ -228,7 +228,7 @@ $(document).ready(function() {
 		errors = false;
 
 		// We hide errors div
-		$('#errors').hide().html('<strong>Warning !</strong>');
+		$('#errors').hide().html('<strong>警告！</strong>');
 
 		$('input.required').each(function(){
 			if ( $.trim($(this).val()) == '' ) {
@@ -244,8 +244,8 @@ $(document).ready(function() {
 		if ( ! errors ) {
 
 			/*--------------------------*/
-			/*	We verify the database connexion and if WP already exists
-			/*  If there is no errors we install
+			/*	檢查資料庫連線及 WordPress 是否已安裝
+			/*  如果沒有錯誤，便會開始安裝
 			/*--------------------------*/
 
 			$.post(window.location.href + '?action=check_before_upload', $('form').serialize(), function(data) {
@@ -255,12 +255,12 @@ $(document).ready(function() {
 
 				if ( data.db == "error etablishing connection" ) {
 					errors = true;
-					$('#errors').show().append('<p style="margin-bottom:0px;">&bull; Error Establishing a Database Connection.</p>');
+					$('#errors').show().append('<p style="margin-bottom:0px;">&bull; 建立資料庫連線時發生錯誤</p>');
 				}
 
 				if ( data.wp == "error directory" ) {
 					errors = true;
-					$('#errors').show().append('<p style="margin-bottom:0px;">&bull; WordPress seems to be Already Installed.</p>');
+					$('#errors').show().append('<p style="margin-bottom:0px;">&bull; WordPress 核心程式似乎已完成安裝</p>');
 				}
 
 				if ( ! errors ) {
@@ -268,66 +268,66 @@ $(document).ready(function() {
 
 						$('.progress').show();
 
-						// Fire Step
-						// We dowload WordPress
-						$response.html("<p>WordPress Download in Progress ...</p>");
+						// 重要步驟
+						// 下載 WordPress 核心程式安裝套件
+						$response.html("<p>正在下載 WordPress 核心程式安裝套件...</p>");
 
 						$.post(window.location.href + '?action=download_wp', $('form').serialize(), function() {
 							unzip_wp();
 						});
 					});
 				} else {
-					// If there is an error
+					// 如果發生錯誤
 					$('html,body').animate( { scrollTop: $( 'html,body' ).offset().top } , 'slow' );
 				}
 			});
 
 		} else {
-			// If there is an error
+			// 如果發生錯誤
 			$('html,body').animate( { scrollTop: $( 'input.error:first' ).offset().top-20 } , 'slow' );
 		}
 		return false;
 	});
 
-	// Let's unzip WordPress
+	// 解壓縮 WordPress 核心程式安裝套件
 	function unzip_wp() {
-		$response.html("<p>Decompressing Files...</p>" );
+		$response.html("<p>正在解壓縮檔案...</p>" );
 		$('.progress-bar').animate({width: "16.5%"});
 		$.post(window.location.href + '?action=unzip_wp', $('form').serialize(), function(data) {
 			wp_config();
 		});
 	}
 
-	// Let's create the wp-config.php file
+	// 開始建立 wp-config 檔案
 	function wp_config() {
-		$response.html("<p>File Creation for wp-config...</p>");
+		$response.html("<p>建立 wp-config 檔案...</p>");
 		$('.progress-bar').animate({width: "33%"});
 		$.post(window.location.href + '?action=wp_config', $('form').serialize(), function(data) {
 			install_wp();
 		});
 	}
 
-	// CDatabase
+	// 安裝資料庫
 	function install_wp() {
-		$response.html("<p>Database Installation in Progress...</p>");
+		$response.html("<p>正在安裝資料庫...</p>");
 		$('.progress-bar').animate({width: "49.5%"});
 		$.post(window.location.href + '/wp-admin/install.php?action=install_wp', $('form').serialize(), function(data) {
 			install_theme();
 		});
 	}
 
-	// Theme
+	// 安裝佈景主題
 	function install_theme() {
-		$response.html("<p>Theme Installation in Progress...</p>");
+		$response.html("<p>正在安裝佈景主題...</p>");
 		$('.progress-bar').animate({width: "66%"});
 		$.post(window.location.href + '/wp-admin/install.php?action=install_theme', $('form').serialize(), function(data) {
 			install_plugins();
 		});
 	}
 
-	// Plugin
+	// 安裝外掛
 	function install_plugins() {
-		$response.html("<p>Plugins Installation in Progress...</p>");
+		$response.html("<p>正在安裝外掛...</p>");
 		$('.progress-bar').animate({width: "82.5%"});
 		$.post(window.location.href + '?action=install_plugins', $('form').serialize(), function(data) {
 			$response.html(data);
@@ -335,9 +335,9 @@ $(document).ready(function() {
 		});
 	}
 
-	// Remove the archive
+	// 移除壓縮檔
 	function success() {
-		$response.html("<p>Successful installation completed</p>");
+		$response.html("<p>WordPress 網站已成功安裝</p>");
 		$('.progress-bar').animate({width: "100%"});
 		$response.hide();
 		$('.progress').delay(500).hide();
