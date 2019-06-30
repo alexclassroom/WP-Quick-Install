@@ -1,4 +1,11 @@
-<files data.ini>
-order allow,deny
-deny from all
-</files>
+<IfModule authz_core_module>
+	<files data.ini>
+		Require all denied
+	</files>
+</IfModule>
+<IfModule !authz_core_module>
+	<files data.ini>
+		order allow,deny
+		deny from all
+	</files>
+</IfModule>
