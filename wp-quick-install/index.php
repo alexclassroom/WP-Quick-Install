@@ -59,7 +59,29 @@ if ( isset( $_GET['action'] ) ) {
 
 			// DB Test
 			try {
-			   $db = new PDO('mysql:host='. $_POST['dbhost'] .';dbname=' . $_POST['dbname'] , $_POST['uname'], $_POST['pwd'] );
+				$dbh = mysqli_init();
+				if( !$dbh ) {
+					throw new Exception('error etablishing connection');
+				}
+				$host = $_POST['dbhost'];
+				$port = null;
+				$socket = null;
+				$is_ipv6 = false;
+
+				if ( $host_data = parse_db_host( $_POST['dbhost'] ) ) {
+					list( $host, $port, $socket, $is_ipv6 ) = $host_data;
+				}
+
+				if ( $is_ipv6 && extension_loaded( 'mysqlnd' ) ) {
+					$host = "[$host]";
+				}
+
+				if( !@mysqli_real_connect($dbh, $host, $_POST['uname'], $_POST['pwd'], null, $port, $socket) ) {
+					throw new Exception('error etablishing connection');
+				}
+				if( !@mysqli_select_db( $dbh, $_POST['dbname'] ) ) {
+					throw new Exception('error etablishing connection');
+				}
 			}
 			catch (Exception $e) {
 				$data['db'] = "error etablishing connection";
