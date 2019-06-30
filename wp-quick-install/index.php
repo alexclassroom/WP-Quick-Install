@@ -2,9 +2,10 @@
 /*
 Script Name: WP Quick Install
 Author: Jonathan Buttigieg
+Contributors: Richer Yang
 Contributors: Julio Potier
 Script URI: http://wp-quick-install.com
-Version: 1.4.1
+Version: 1.5.0
 Licence: GPLv3
 Last Update: 08 jan 15
 */
