@@ -691,7 +691,7 @@ else { ?>
 								<option value="en_US">English (United States)</option>
 								<?php
 								// Get all available languages
-								$languages = json_decode( file_get_contents( 'https://api.wordpress.org/translations/core/1.0/?version=5.0' ) )->translations;
+								$languages = json_decode( file_get_contents( 'http://api.wordpress.org/translations/core/1.0/?version=5.0' ) )->translations;
 
 								foreach ( $languages as $language ) {
 									echo '<option value="' . $language->language . '">' . $language->native_name . '</option>';
@@ -769,7 +769,7 @@ else { ?>
 					<tr>
 						<th scope="row">
 							<label for="plugins"><?php echo _('Free Extensions');?></label>
-							<p><?php echo _('The extension slug is available in the url (Ex: http://wordpress.org/extend/plugins/<strong>wordpress-seo</strong>)');?></p>
+							<p><?php echo _('The extension slug is available in the url (Ex: https://wordpress.org/extend/plugins/<strong>wordpress-seo</strong>)');?></p>
 						</th>
 						<td>
 							<input name="plugins" type="text" id="plugins" size="50" value="health-check;" />
