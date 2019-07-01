@@ -15,6 +15,7 @@ Last Update: 08 jan 15
 define( 'WP_API_CORE'				, 'http://api.wordpress.org/core/version-check/1.7/?locale=' );
 define( 'WPQI_CACHE_PATH'			, 'cache/' );
 define( 'WPQI_CACHE_CORE_PATH'		, WPQI_CACHE_PATH . 'core/' );
+define( 'WPQI_CACHE_THEMES_PATH'	, WPQI_CACHE_PATH . 'themes/' );
 define( 'WPQI_CACHE_PLUGINS_PATH'	, WPQI_CACHE_PATH . 'plugins/' );
 
 require( 'inc/functions.php' );
@@ -32,6 +33,9 @@ if ( ! is_dir( WPQI_CACHE_PATH ) ) {
 }
 if ( ! is_dir( WPQI_CACHE_CORE_PATH ) ) {
 	mkdir( WPQI_CACHE_CORE_PATH );
+}
+if ( ! is_dir( WPQI_CACHE_THEMES_PATH ) ) {
+	mkdir( WPQI_CACHE_THEMES_PATH );
 }
 if ( ! is_dir( WPQI_CACHE_PLUGINS_PATH ) ) {
 	mkdir( WPQI_CACHE_PLUGINS_PATH );
@@ -438,7 +442,7 @@ if ( isset( $_GET['action'] ) ) {
 
 				break;
 
-			case "install_theme" :
+			case "install_themes" :
 
 				/** Load WordPress Bootstrap */
 				require_once( $directory . 'wp-load.php' );
@@ -449,6 +453,10 @@ if ( isset( $_GET['action'] ) ) {
 				/*--------------------------*/
 				/*	We install the new theme
 				/*--------------------------*/
+
+				$themes_dir = $directory . 'wp-content/themes/';
+
+				$activate_theme = '';
 
 				// We verify if theme.zip exists
 				if ( file_exists( 'theme.zip' ) ) {
@@ -463,33 +471,73 @@ if ( isset( $_GET['action'] ) ) {
 						$theme_name = str_replace('/', '' , $stat['name']);
 
 						// We unzip the archive in the themes folder
-						$zip->extractTo( $directory . 'wp-content/themes/' );
+						$zip->extractTo( $themes_dir );
 						$zip->close();
 
-						// Let's activate the theme
-						// Note : The theme is automatically activated if the user asked to remove the default theme
-						if ( $_POST['activate_theme'] == 1 || $_POST['delete_default_themes'] == 1 ) {
-							switch_theme( $theme_name, $theme_name );
+						// Keep the activate theme name
+						if ( $_POST['activate_theme'] == 1 ) {
+							$activate_theme = $theme_name;
 						}
-
-						// Let's remove the Tweenty family
-						if ( $_POST['delete_default_themes'] == 1 ) {
-							delete_theme( 'twentynineteen' );
-							delete_theme( 'twentyseventeen' );
-							delete_theme( 'twentysixteen' );
-							delete_theme( 'twentyfifteen' );
-							delete_theme( 'twentyfourteen' );
-							delete_theme( 'twentythirteen' );
-							delete_theme( 'twentytwelve' );
-							delete_theme( 'twentyeleven' );
-							delete_theme( 'twentyten' );
-						}
-
-						// We delete the _MACOSX folder (bug with a Mac)
-						delete_theme( '__MACOSX' );
-
 					}
 				}
+
+				// Install from 
+				if ( ! empty( $_POST['themes'] ) ) {
+
+					$themes = explode( ";", $_POST['themes'] );
+					$themes = array_map( 'trim' , $themes );
+
+					foreach ( $themes as $theme ) {
+
+						// We retrieve the theme XML file to get the link to downlad it
+					    $theme_repo = file_get_contents( "http://api.wordpress.org/themes/info/1.1/?action=theme_information&request[slug]=$theme" );
+
+					    if ( $theme_repo && $theme = json_decode( $theme_repo ) ) {
+
+							$theme_path = WPQI_CACHE_THEMES_PATH . $theme->slug . '-' . $theme->version . '.zip';
+
+							if ( ! file_exists( $theme_path ) ) {
+								// We download the lastest version
+								if ( $download_link = file_get_contents( $theme->download_link ) ) {
+ 									file_put_contents( $theme_path, $download_link );
+ 								}
+							}
+
+					    	// We unzip it
+					    	$zip = new ZipArchive;
+							if ( $zip->open( $theme_path ) === true ) {
+								$zip->extractTo( $themes_dir );
+								$zip->close();
+								
+								// Keep the activate theme name
+								if ( $_POST['activate_theme'] == 1 && $activate_theme == '' ) {
+									$activate_theme = $theme->slug;
+								}
+							}
+					    }
+					}
+				}
+
+				// Let's activate the theme
+				if( $activate_theme != '' ) {
+					switch_theme( $activate_theme, $activate_theme );
+					
+					// Let's remove the Tweenty family
+					if ( $_POST['delete_default_themes'] == 1 ) {
+						delete_theme( 'twentynineteen' );
+						delete_theme( 'twentyseventeen' );
+						delete_theme( 'twentysixteen' );
+						delete_theme( 'twentyfifteen' );
+						delete_theme( 'twentyfourteen' );
+						delete_theme( 'twentythirteen' );
+						delete_theme( 'twentytwelve' );
+						delete_theme( 'twentyeleven' );
+						delete_theme( 'twentyten' );
+					}
+				}
+
+				// We delete the _MACOSX folder (bug with a Mac)
+				delete_theme( '__MACOSX' );
 
 			break;
 
@@ -749,10 +797,21 @@ else { ?>
 				<table class="form-table">
 					<tr>
 						<th scope="row">
+							<label for="themes"><?php echo _('Free Themes');?></label>
+							<p><?php echo _('The themes slug is available in the url (Ex: https://wordpress.org/themes/<strong>twentynineteen</strong>)');?></p>
+						</th>
+						<td>
+							<input name="themes" type="text" id="themes" size="50" value="" />
+							<p><?php echo _('Make sure that the themes slugs are separated by a semicolon (;).');?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
 							<label for="activate_theme"><?php echo _('Automatic Activation');?></label>
 						</th>
 						<td colspan="2">
 							<label><input type="checkbox" id="activate_theme" name="activate_theme" value="1" /> <?php echo _('Activate the theme after installing WordPress.');?></label>
+							<p><?php echo _('If theme.zip exist then it will been activate. Other will activate the first theme installed from free themes.');?></p>
 						</td>
 					</tr>
 					<tr>
