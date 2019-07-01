@@ -204,17 +204,17 @@ if ( isset( $_GET['action'] ) ) {
 						case 'WP_DEBUG'	   :
 
 							// Debug mod
-							if ( (int) $_POST['debug'] == 1 ) {
+							if ( isset($_POST['debug']) && (int) $_POST['debug'] == 1 ) {
 								$line = "define('WP_DEBUG', 'true');\r\n";
 
 								// Display error
-								if ( (int) $_POST['debug_display'] == 1 ) {
+								if ( isset($_POST['debug_display']) && (int) $_POST['debug_display'] == 1 ) {
 									$line .= "\r\n\n " . "/** Affichage des erreurs à l'écran */" . "\r\n";
 									$line .= "define('WP_DEBUG_DISPLAY', 'true');\r\n";
 								}
 
 								// To write error in a log files
-								if ( (int) $_POST['debug_log'] == 1 ) {
+								if ( isset($_POST['debug_log']) && (int) $_POST['debug_log'] == 1 ) {
 									$line .= "\r\n\n " . "/** Ecriture des erreurs dans un fichier log */" . "\r\n";
 									$line .= "define('WP_DEBUG_LOG', 'true');\r\n";
 								}
@@ -231,7 +231,7 @@ if ( isset( $_GET['action'] ) ) {
 								$line .= "define('WP_POST_REVISIONS', " . (int) $_POST['post_revisions'] . ");";
 							}
 
-							if ( (int) $_POST['disallow_file_edit'] == 1 ) {
+							if ( isset($_POST['disallow_file_edit']) && (int) $_POST['disallow_file_edit'] == 1 ) {
 								$line .= "\r\n\n " . "/** Désactivation de l'éditeur de thème et d'extension */" . "\r\n";
 								$line .= "define('DISALLOW_FILE_EDIT', true);";
 							}
@@ -578,7 +578,7 @@ if ( isset( $_GET['action'] ) ) {
 					}
 				}
 
-				if ( $_POST['plugins_premium'] == 1 ) {
+				if ( isset($_POST['plugins_premium']) && (int) $_POST['plugins_premium'] == 1 ) {
 
 					// We scan the folder
 					$plugins = scandir( 'plugins' );
@@ -610,7 +610,7 @@ if ( isset( $_GET['action'] ) ) {
 				/*	We activate extensions
 				/*--------------------------*/
 
-				if ( $_POST['activate_plugins'] == 1 ) {
+				if ( isset($_POST['activate_plugins']) && (int) $_POST['activate_plugins'] == 1 ) {
 
 					/** Load WordPress Bootstrap */
 					require_once( $directory . 'wp-load.php' );
