@@ -1,4 +1,4 @@
-WP Quick Install 1.5.0
+WP Quick Install 1.5.1
 ================
 
 WP Quick Install is the easiest way to install WordPress.
@@ -9,6 +9,11 @@ Simply download the .zip archive et go to *wp-quick-install/index.php*
 
 Changelog
 ================
+
+1.5.1
+-----------
+* Support install theme from WordPress.org
+* Fix same php error
 
 1.5.0
 -----------
