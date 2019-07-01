@@ -689,7 +689,7 @@ else { ?>
 								<option value="en_US">English (United States)</option>
 								<?php
 								// Get all available languages
-								$languages = json_decode( file_get_contents( 'http://api.wordpress.org/translations/core/1.0/?version=4.0' ) )->translations;
+								$languages = json_decode( file_get_contents( 'https://api.wordpress.org/translations/core/1.0/?version=5.0' ) )->translations;
 
 								foreach ( $languages as $language ) {
 									echo '<option value="' . $language->language . '">' . $language->native_name . '</option>';
