@@ -769,7 +769,7 @@ else { ?>
 					<tr>
 						<th scope="row">
 							<label for="plugins"><?php echo _('Free Extensions');?></label>
-							<p><?php echo _('The extension slug is available in the url (Ex: https://wordpress.org/extend/plugins/<strong>wordpress-seo</strong>)');?></p>
+							<p><?php echo _('The extension slug is available in the url (Ex: https://wordpress.org/plugins/<strong>health-check</strong>)');?></p>
 						</th>
 						<td>
 							<input name="plugins" type="text" id="plugins" size="50" value="health-check;" />
