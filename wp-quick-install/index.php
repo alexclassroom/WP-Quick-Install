@@ -135,7 +135,9 @@ if ( isset( $_GET['action'] ) ) {
 			// If we want to put WordPress in a subfolder we create it
 			if ( ! empty( $directory ) ) {
 				// Let's create the folder
-				mkdir( $directory );
+				if ( ! is_dir( $directory ) ) {
+					mkdir( $directory );
+				}
 
 				// We set the good writing rights
 				chmod( $directory , 0755 );
@@ -371,7 +373,7 @@ if ( isset( $_GET['action'] ) ) {
 					$file = parse_ini_file( 'data.ini' );
 
 					// We verify if we have at least one page
-					if ( count( $file['posts'] ) >= 1 ) {
+					if ( isset($file['posts']) && count( $file['posts'] ) >= 1 ) {
 
 						foreach ( $file['posts'] as $post ) {
 
