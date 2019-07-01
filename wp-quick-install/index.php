@@ -474,6 +474,8 @@ if ( isset( $_GET['action'] ) ) {
 
 						// Let's remove the Tweenty family
 						if ( $_POST['delete_default_themes'] == 1 ) {
+							delete_theme( 'twentynineteen' );
+							delete_theme( 'twentyseventeen' );
 							delete_theme( 'twentysixteen' );
 							delete_theme( 'twentyfifteen' );
 							delete_theme( 'twentyfourteen' );
