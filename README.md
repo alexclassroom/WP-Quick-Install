@@ -1,4 +1,4 @@
-WP Quick Install 1.4.2 台灣繁體中文版
+WP Quick Install 1.5.1 台灣繁體中文版
 ================
 
 WP Quick Install 提供了安裝 WordPress 網站最簡單的方式。
@@ -9,6 +9,17 @@ WP Quick Install 提供了安裝 WordPress 網站最簡單的方式。
 
 Changelog
 ================
+
+1.5.1
+-----------
+* Support install theme from WordPress.org
+* Fix same php error
+
+1.5.0
+-----------
+* Fix Apache 2.4 issue
+* Fix php notice issue
+* Change database content function like WordPress used
 
 1.4.2
 -----------

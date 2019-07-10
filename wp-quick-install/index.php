@@ -2,26 +2,28 @@
 /*
 Script Name: WP Quick Install
 Author: Jonathan Buttigieg
+Contributors: Richer Yang
 Contributors: Julio Potier
 Script URI: http://wp-quick-install.com
-Version: 1.4.2-zh_TW
+Version: 1.5.1
 Licence: GPLv3
-Translator: Alex Lion
-Last Update: 28 Jun 19
+Last Update: 2019-07-02
 */
 
 @set_time_limit( 0 );
 
-define( 'WP_API_CORE'				, 'https://api.wordpress.org/core/version-check/1.7/?locale=');
-define( 'WPQI_CACHE_PATH'			, 'cache/');
-define( 'WPQI_CACHE_CORE_PATH'		, WPQI_CACHE_PATH . 'core/');
-define( 'WPQI_CACHE_PLUGINS_PATH'	, WPQI_CACHE_PATH . 'plugins/');
+define( 'WP_API_CORE'				, 'https://api.wordpress.org/core/version-check/1.7/?locale=' );
+define( 'WPQI_CACHE_PATH'			, 'cache/' );
+define( 'WPQI_CACHE_CORE_PATH'		, WPQI_CACHE_PATH . 'core/' );
+define( 'WPQI_CACHE_THEMES_PATH'	, WPQI_CACHE_PATH . 'themes/' );
+define( 'WPQI_CACHE_PLUGINS_PATH'	, WPQI_CACHE_PATH . 'plugins/' );
 
 require( 'inc/functions.php');
 
 // 強制在網址尾端加上 index.php
-if ( empty( $_GET ) && end( ( explode( '/' , trim($_SERVER['REQUEST_URI'], '/') ) ) ) == 'wp-quick-install') {
-	header( 'Location: index.php');
+$request_uri = explode( '/' , trim($_SERVER['REQUEST_URI'], '/') );
+if ( empty( $_GET ) && end( $request_uri ) == 'wp-quick-install' ) {
+	header( 'Location: index.php' );
 	die();
 }
 
@@ -31,6 +33,9 @@ if ( ! is_dir( WPQI_CACHE_PATH ) ) {
 }
 if ( ! is_dir( WPQI_CACHE_CORE_PATH ) ) {
 	mkdir( WPQI_CACHE_CORE_PATH );
+}
+if ( ! is_dir( WPQI_CACHE_THEMES_PATH ) ) {
+	mkdir( WPQI_CACHE_THEMES_PATH );
 }
 if ( ! is_dir( WPQI_CACHE_PLUGINS_PATH ) ) {
 	mkdir( WPQI_CACHE_PLUGINS_PATH );
@@ -59,7 +64,29 @@ if ( isset( $_GET['action'] ) ) {
 
 			// 資料庫測試
 			try {
-			   $db = new PDO('mysql:host='. $_POST['dbhost'] .';dbname=' . $_POST['dbname'] , $_POST['uname'], $_POST['pwd'] );
+				$dbh = mysqli_init();
+				if( !$dbh ) {
+					throw new Exception('error etablishing connection');
+				}
+				$host = $_POST['dbhost'];
+				$port = null;
+				$socket = null;
+				$is_ipv6 = false;
+
+				if ( $host_data = parse_db_host( $_POST['dbhost'] ) ) {
+					list( $host, $port, $socket, $is_ipv6 ) = $host_data;
+				}
+
+				if ( $is_ipv6 && extension_loaded( 'mysqlnd' ) ) {
+					$host = "[$host]";
+				}
+
+				if( !@mysqli_real_connect($dbh, $host, $_POST['uname'], $_POST['pwd'], null, $port, $socket) ) {
+					throw new Exception('error etablishing connection');
+				}
+				if( !@mysqli_select_db( $dbh, $_POST['dbname'] ) ) {
+					throw new Exception('error etablishing connection');
+				}
 			}
 			catch (Exception $e) {
 				$data['db'] = "error etablishing connection";
@@ -108,7 +135,9 @@ if ( isset( $_GET['action'] ) ) {
 			// 如果有需要，變將 WordPress 資料夾儲存至這個程式建立的子資料夾
 			if ( ! empty( $directory ) ) {
 				// Let's create the folder
-				mkdir( $directory );
+				if ( ! is_dir( $directory ) ) {
+					mkdir( $directory );
+				}
 
 				// 為目錄設定正確存取權限
 				chmod( $directory , 0755 );
@@ -177,17 +206,17 @@ if ( isset( $_GET['action'] ) ) {
 						case 'WP_DEBUG'	   :
 
 							// 偵錯模式
-							if ( (int) $_POST['debug'] == 1 ) {
+							if ( isset($_POST['debug']) && (int) $_POST['debug'] == 1 ) {
 								$line = "define('WP_DEBUG', 'true');\r\n";
 
 								// 顯示錯誤
-								if ( (int) $_POST['debug_display'] == 1 ) {
+								if ( isset($_POST['debug_display']) && (int) $_POST['debug_display'] == 1 ) {
 									$line .= "\r\n\n " . "/** Affichage des erreurs à l'écran */" . "\r\n";
 									$line .= "define('WP_DEBUG_DISPLAY', 'true');\r\n";
 								}
 
 								// 將錯誤訊息寫入記錄檔
-								if ( (int) $_POST['debug_log'] == 1 ) {
+								if ( isset($_POST['debug_log']) && (int) $_POST['debug_log'] == 1 ) {
 									$line .= "\r\n\n " . "/** Ecriture des erreurs dans un fichier log */" . "\r\n";
 									$line .= "define('WP_DEBUG_LOG', 'true');\r\n";
 								}
@@ -204,7 +233,7 @@ if ( isset( $_GET['action'] ) ) {
 								$line .= "define('WP_POST_REVISIONS', " . (int) $_POST['post_revisions'] . ");";
 							}
 
-							if ( (int) $_POST['disallow_file_edit'] == 1 ) {
+							if ( isset($_POST['disallow_file_edit']) && (int) $_POST['disallow_file_edit'] == 1 ) {
 								$line .= "\r\n\n " . "/** Désactivation de l'éditeur de thème et d'extension */" . "\r\n";
 								$line .= "define('DISALLOW_FILE_EDIT', true);";
 							}
@@ -344,7 +373,7 @@ if ( isset( $_GET['action'] ) ) {
 					$file = parse_ini_file( 'data.ini');
 
 					// 驗證是否至少有一個頁面
-					if ( count( $file['posts'] ) >= 1 ) {
+					if ( isset($file['posts']) && count( $file['posts'] ) >= 1 ) {
 
 						foreach ( $file['posts'] as $post ) {
 
@@ -415,7 +444,7 @@ if ( isset( $_GET['action'] ) ) {
 
 				break;
 
-			case "install_theme" :
+			case "install_themes" :
 
 				/** 載入 WordPress Bootstrap */
 				require_once( $directory . 'wp-load.php');
@@ -427,8 +456,12 @@ if ( isset( $_GET['action'] ) ) {
 				/*	安裝佈景主題
 				/*--------------------------*/
 
+				$themes_dir = $directory . 'wp-content/themes/';
+
+				$activate_theme = '';
+
 				// 驗證 theme.zip 是否存在
-				if ( file_exists( 'theme.zip') ) {
+				if ( file_exists( 'theme.zip' ) ) {
 
 					$zip = new ZipArchive;
 
@@ -440,33 +473,73 @@ if ( isset( $_GET['action'] ) ) {
 						$theme_name = str_replace('/', '' , $stat['name']);
 
 						// 將 theme.zip 解壓縮至 themes 資料夾
-						$zip->extractTo( $directory . 'wp-content/themes/');
+						$zip->extractTo( $themes_dir );
 						$zip->close();
 
 						// 啟用佈景主題
-						// 注意：如果已設定在安裝時移除預設佈景主題，則額外安裝的佈景主題會自動啟用
-						if ( $_POST['activate_theme'] == 1 || $_POST['delete_default_themes'] == 1 ) {
-							switch_theme( $theme_name, $theme_name );
+						if ( $_POST['activate_theme'] == 1 ) {
+							$activate_theme = $theme_name;
 						}
-
-						// 移除 Tweenty 系列佈景主題
-						if ( $_POST['delete_default_themes'] == 1 ) {
-							delete_theme( 'twentynineteen');
-							delete_theme( 'twentyseventeen');
-							delete_theme( 'twentysixteen');
-							delete_theme( 'twentyfifteen');
-							delete_theme( 'twentyfourteen');
-							delete_theme( 'twentythirteen');
-							delete_theme( 'twentytwelve');
-							delete_theme( 'twentyeleven');
-							delete_theme( 'twentyten');
-						}
-
-						// 刪除 _MACOSX 資料夾 (macOS 特有的程式碼錯誤)
-						delete_theme( '__MACOSX');
-
 					}
 				}
+
+				// 佈景主題安裝來源 
+				if ( ! empty( $_POST['themes'] ) ) {
+
+					$themes = explode( ";", $_POST['themes'] );
+					$themes = array_map( 'trim' , $themes );
+
+					foreach ( $themes as $theme ) {
+
+						// 擷取佈景主題 XML 檔案，便能取得清單以便下載
+					    $theme_repo = file_get_contents( "https://api.wordpress.org/themes/info/1.1/?action=theme_information&request[slug]=$theme" );
+
+					    if ( $theme_repo && $theme = json_decode( $theme_repo ) ) {
+
+							$theme_path = WPQI_CACHE_THEMES_PATH . $theme->slug . '-' . $theme->version . '.zip';
+
+							if ( ! file_exists( $theme_path ) ) {
+								// We download the lastest version
+								if ( $download_link = file_get_contents( $theme->download_link ) ) {
+ 									file_put_contents( $theme_path, $download_link );
+ 								}
+							}
+
+					    	// 解壓縮佈景主題安裝套件
+					    	$zip = new ZipArchive;
+							if ( $zip->open( $theme_path ) === true ) {
+								$zip->extractTo( $themes_dir );
+								$zip->close();
+								
+								// 記錄要啟用的佈景主題名稱
+								if ( $_POST['activate_theme'] == 1 && $activate_theme == '' ) {
+									$activate_theme = $theme->slug;
+								}
+							}
+					    }
+					}
+				}
+
+				// 啟用佈景主題
+				if( $activate_theme != '' ) {
+					switch_theme( $activate_theme, $activate_theme );
+					
+					// 移除 Tweenty 系列佈景主題
+					if ( $_POST['delete_default_themes'] == 1 ) {
+						delete_theme( 'twentynineteen' );
+						delete_theme( 'twentyseventeen' );
+						delete_theme( 'twentysixteen' );
+						delete_theme( 'twentyfifteen' );
+						delete_theme( 'twentyfourteen' );
+						delete_theme( 'twentythirteen' );
+						delete_theme( 'twentytwelve' );
+						delete_theme( 'twentyeleven' );
+						delete_theme( 'twentyten' );
+					}
+				}
+
+				// 刪除 _MACOSX 資料夾 (macOS 特有的程式碼錯誤)
+				delete_theme( '__MACOSX' );
 
 			break;
 
@@ -507,7 +580,7 @@ if ( isset( $_GET['action'] ) ) {
 					}
 				}
 
-				if ( $_POST['plugins_premium'] == 1 ) {
+				if ( isset($_POST['plugins_premium']) && (int) $_POST['plugins_premium'] == 1 ) {
 
 					// 掃描資料夾
 					$plugins = scandir( 'plugins');
@@ -539,7 +612,7 @@ if ( isset( $_GET['action'] ) ) {
 				/*	啟用外掛
 				/*--------------------------*/
 
-				if ( $_POST['activate_plugins'] == 1 ) {
+				if ( isset($_POST['activate_plugins']) && (int) $_POST['activate_plugins'] == 1 ) {
 
 					/** 載入 WordPress Bootstrap */
 					require_once( $directory . 'wp-load.php');
@@ -667,8 +740,9 @@ else { ?>
 							<select id="language" name="language">
 								<option value="en_US">英文 (美國)</option>
 								<?php
+
 								// 取得網站介面可用語言完整清單
-								$languages = json_decode( file_get_contents( 'https://api.wordpress.org/translations/core/1.0/?version=4.0') )->translations;
+								$languages = json_decode( file_get_contents( 'https ://api.wordpress.org/translations/core/1.0/?version=5.0' ) )->translations;
 
 								foreach ( $languages as $language ) {
 									echo '<option value="' . $language->language . '">' . $language->native_name . '</option>';
@@ -726,10 +800,21 @@ else { ?>
 				<table class="form-table">
 					<tr>
 						<th scope="row">
+							<label for="themes"><?php echo _('免費佈景主題');?></label>
+							<p><?php echo _('請輸入 WordPress.org 佈景主題目錄中正確的佈景主題代稱，例如 https://wordpress.org/themes/<strong>twentynineteen</strong>');?></p>
+						</th>
+						<td>
+							<input name="themes" type="text" id="themes" size="50" value="" />
+							<p><?php echo _('如需安裝多個免費外掛，請使用分號 <strong>;</strong> 分隔多個佈景主題代稱。');?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
 							<label for="activate_theme"><?php echo _('自動啟用');?></label>
 						</th>
 						<td colspan="2">
-							<label><input type="checkbox" id="activate_theme" name="activate_theme" value="1" /> <?php echo _('WordPress 安裝完畢後，啟用預先安裝的佈景主題 (theme.zip)');?></label>
+							<label><input type="checkbox" id="activate_theme" name="activate_theme" value="1" /> <?php echo _('WordPress 安裝完畢後，啟用預先安裝的佈景主題');?></label>
+							<p><?php echo _('如果 theme.zip 存在，便會啟用這個檔案代表的佈景主題，不然便會啟用從佈景主題目錄第一個下載安裝的免費佈景主題。');?></p>
 						</td>
 					</tr>
 					<tr>
@@ -746,10 +831,10 @@ else { ?>
 					<tr>
 						<th scope="row">
 							<label for="plugins"><?php echo _('免費外掛');?></label>
-							<p><?php echo _('請輸入 WordPress.org 外掛目錄中正確的外掛代稱，例如  https://tw.wordpress.org/plugins/<strong>health-check</strong>');?></p>
+							<p><?php echo _('請輸入 WordPress.org 外掛目錄中正確的外掛代稱，例如 https://tw.wordpress.org/plugins/<strong>health-check</strong>');?></p>
 						</th>
 						<td>
-							<input name="plugins" type="text" id="plugins" size="50" value="health-check; rocket-lazy-load; imagify" />
+							<input name="plugins" type="text" id="plugins" size="50" value="health-check;" />
 							<p><?php echo _('如需安裝多個免費外掛，請使用分號 <strong>;</strong> 分隔多個外掛代稱。');?></p>
 						</td>
 					</tr>

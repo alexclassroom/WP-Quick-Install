@@ -109,6 +109,10 @@ $(document).ready(function() {
 	/*	佈景主題
 	/*--------------------------*/
 
+	if ( typeof data.themes !='undefined' ) {
+		$('#themes').val( data.themes.join(';') );
+	}
+
 	if ( typeof data.activate_theme !='undefined' ) {
 		( parseInt(data.activate_theme) == 1 ) ? $('#activate_theme').attr('checked', 'checked') : $('#activate_theme').removeAttr('checked');
 	}
@@ -320,7 +324,7 @@ $(document).ready(function() {
 	function install_theme() {
 		$response.html("<p>正在安裝佈景主題...</p>");
 		$('.progress-bar').animate({width: "66%"});
-		$.post(window.location.href + '/wp-admin/install.php?action=install_theme', $('form').serialize(), function(data) {
+		$.post(window.location.href + '/wp-admin/install.php?action=install_themes', $('form').serialize(), function(data) {
 			install_plugins();
 		});
 	}
