@@ -557,6 +557,7 @@ if ( isset( $_GET['action'] ) ) {
 					
 					// 移除 Tweenty 系列佈景主題
 					if ( $_POST['delete_default_themes'] == 1 ) {
+						delete_theme( 'twentytwenty' );
 						delete_theme( 'twentynineteen' );
 						delete_theme( 'twentyseventeen' );
 						delete_theme( 'twentysixteen' );
